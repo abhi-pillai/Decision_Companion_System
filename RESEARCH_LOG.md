@@ -38,4 +38,10 @@ Apologies for the delay in updating the research log for the First Week of the D
     It provided me with a through explanation of each algorithm, their differences, and examples of their applications in various decision-making scenarios. This information is crucial for understanding the different approaches to multi-criteria decision-making and how they can be applied in the context of building a decision companion system. Each algorithm has its own strengths and weaknesses, and understanding these can help in selecting the most appropriate method for a given decision-making problem.
 ### *Day 7*
      I attended the google meet session by Vonnue where they discussed the project requirements, expectations, and provided guidance on how to approach the assignment. This session was helpful in clarifying any doubts and ensuring that I am on the right track with my research and development of the Decision Companion System. I also had the opportunity to ask questions and receive feedback from the instructors, which will be valuable as I continue to work on the project in the coming weeks.
-
+    Google search command for initialize gradle project:
+    - How to initialize a gradle project?
+        It provided me with the steps to initialize a Gradle project, which include:
+        1. Installing Gradle on your system.
+        2. Creating a new directory for your project and navigating into it.
+        3. Running the command `gradle init` to set up the basic structure of the project.
+        4. Choosing the type of project (e.g., Java application) and providing necessary details when prompted.
