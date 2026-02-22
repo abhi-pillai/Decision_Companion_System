@@ -45,3 +45,19 @@ Apologies for the delay in updating the research log for the First Week of the D
         2. Creating a new directory for your project and navigating into it.
         3. Running the command `gradle init` to set up the basic structure of the project.
         4. Choosing the type of project (e.g., Java application) and providing necessary details when prompted.
+### *Day 8*
+     Started implementing the initial architecture and project structure for the Decision Companion System. I created the necessary folders and files for the Controller Layer, Service Layer, Repository Layer, and Model/Entity Layer. I also set up the Gradle build script to manage dependencies and automate the build process. This initial setup will serve as the foundation for developing the various components of the Decision Companion System in the coming weeks.
+
+     Deleted App.java file and created a basic structure to test the logic of the project.
+     Domain Models
+        - Criterion.java — name + weight
+        - Option.java — name + map of criterion scores
+        - DecisionRequest.java — holds list of options + criteria
+        - DecisionResult.java — holds ranked options + scores + explanation
+
+     Decision Engine
+        - DecisionEngine.java — interface
+        - WeightedSumEngine.java — WSM logic (normalize → multiply → sum → rank)
+
+     CLI Runner
+        - Main.java — hardcoded sample input to test the engine end to end
