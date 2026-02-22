@@ -61,5 +61,5 @@ Decision Engine
 
 CLI Runner
 - Main.java — hardcoded sample input to test the engine end to end"
-Prompts I used:
-- create a basic structure which has the most basic features to test the WSM algorithm.
+- Prompts I used:
+    create a basic structure which has the most basic features to test the WSM algorithm.
