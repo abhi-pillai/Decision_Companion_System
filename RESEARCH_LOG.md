@@ -22,22 +22,22 @@ Continuing on my research, I explored whether a decision companion system can be
 - Can a decision companion system be built without relying on a large language model or machine learning?
     It provided me with a solution and that is MCDM (Multi-Criteria Decision Making) which is a method used to evaluate and prioritize different options based on multiple criteria. This approach can be used to build a decision companion system that does not rely on large language models or machine learning. It uses pure mathematics to evaluate and prioritize options based on predefined criteria, making it a viable alternative for building a decision companion system without the need for complex AI models.
 ### *Day 4*
-    Continuing on my research, I asked ChatGPT the following prompt:
-    - Some examples multi criteria decision making algorithms
-    It provided me with several examples of multi-criteria decision-making algorithms which are AHP, TOPSIS, ELECTRE, PROMETHEE, MAUT, and VIKOR.
+Continuing on my research, I asked ChatGPT the following prompt:
+- Some examples multi criteria decision making algorithms
+It provided me with several examples of multi-criteria decision-making algorithms which are AHP, TOPSIS, ELECTRE, PROMETHEE, MAUT, and VIKOR.
 ### *Day 5*
-    I spent time researching and understanding the AHP (Analytic Hierarchy Process) algorithm, which is one of the multi-criteria decision-making algorithms. I found a research paper titled "Supplier Selection In Automotive Industry Based On Analytical Hierarchy Process" by Muhammad Dawood Idrees,  Kashan Ahmed, UroosaAli, Arsalan Ansari, Abdul Sami. 
-    Here's the link to the paper: [Supplier Selection In Automotive Industry Based On Analytical Hierarchy Process](https://ijstr.org/final-print/may2021/Supplier-Selection-In-Automotive-Industry-Based-On-Analytical-Hierarchy-Process.pdf).
-    I prompted ChatGPT to find key informations for my project:
-    - What are the key findings and insights from the paper "Supplier Selection In Automotive Industry Based On Analytical Hierarchy Process" by Muhammad Dawood Idrees,  Kashan Ahmed, UroosaAli, Arsalan Ansari, Abdul Sami.?
-    It provided me with a solution in the form of MCDM (Multi-Criteria Decision Making), specifically the Analytic Hierarchy Process (AHP), which is used to evaluate and rank suppliers based on multiple criteria such as service, delivery time, price, and quality. This approach can be used to build a decision companion system that supports managerial decision-making without relying on large language models or machine learning. Instead, it applies structured pairwise comparisons and mathematical consistency checks to prioritize alternatives based on predefined criteria, making it a transparent and reliable method for developing a decision companion system without complex AI models.
+I spent time researching and understanding the AHP (Analytic Hierarchy Process) algorithm, which is one of the multi-criteria decision-making algorithms. I found a research paper titled "Supplier Selection In Automotive Industry Based On Analytical Hierarchy Process" by Muhammad Dawood Idrees,  Kashan Ahmed, UroosaAli, Arsalan Ansari, Abdul Sami. 
+Here's the link to the paper: [Supplier Selection In Automotive Industry Based On Analytical Hierarchy Process](https://ijstr.org/final-print/may2021/Supplier-Selection-In-Automotive-Industry-Based-On-Analytical-Hierarchy-Process.pdf).
+I prompted ChatGPT to find key informations for my project:
+- What are the key findings and insights from the paper "Supplier Selection In Automotive Industry Based On Analytical Hierarchy Process" by Muhammad Dawood Idrees,  Kashan Ahmed, UroosaAli, Arsalan Ansari, Abdul Sami.?
+It provided me with a solution in the form of MCDM (Multi-Criteria Decision Making), specifically the Analytic Hierarchy Process (AHP), which is used to evaluate and rank suppliers based on multiple criteria such as service, delivery time, price, and quality. This approach can be used to build a decision companion system that supports managerial decision-making without relying on large language models or machine learning. Instead, it applies structured pairwise comparisons and mathematical consistency checks to prioritize alternatives based on predefined criteria, making it a transparent and reliable method for developing a decision companion system without complex AI models.
 ### *Day 6*
-    I continued my research on the TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) algorithm, ELECTRE (Elimination and Choice Expressing Reality) algorithm, PROMETHEE (Preference Ranking Organization Method for Enrichment Evaluations) algorithm, MAUT (Multi-Attribute Utility Theory) algorithm, and VIKOR (VlseKriterijumska Optimizacija I Kompromisno Resenje) algorithm. I prompted these algorithms and to find their definitions, applications, and examples of how they are used in decision-making processes.
-    Prompts I used:
-    - TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) algorithm, ELECTRE (Elimination and Choice Expressing Reality) algorithm, PROMETHEE (Preference Ranking Organization Method for Enrichment Evaluations) algorithm, MAUT (Multi-Attribute Utility Theory) algorithm, and VIKOR (VlseKriterijumska Optimizacija I Kompromisno Resenje) algorithm. What is the definition, difference, examples of their usage.  
+I continued my research on the TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) algorithm, ELECTRE (Elimination and Choice Expressing Reality) algorithm, PROMETHEE (Preference Ranking Organization Method for Enrichment Evaluations) algorithm, MAUT (Multi-Attribute Utility Theory) algorithm, and VIKOR (VlseKriterijumska Optimizacija I Kompromisno Resenje) algorithm. I prompted these algorithms and to find their definitions, applications, and examples of how they are used in decision-making processes.
+Prompts I used:
+- TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) algorithm, ELECTRE (Elimination and Choice Expressing Reality) algorithm, PROMETHEE (Preference Ranking Organization Method for Enrichment Evaluations) algorithm, MAUT (Multi-Attribute Utility Theory) algorithm, and VIKOR (VlseKriterijumska Optimizacija I Kompromisno Resenje) algorithm. What is the definition, difference, examples of their usage.  
 It provided me with a through explanation of each algorithm, their differences, and examples of their applications in various decision-making scenarios. This information is crucial for understanding the different approaches to multi-criteria decision-making and how they can be applied in the context of building a decision companion system. Each algorithm has its own strengths and weaknesses, and understanding these can help in selecting the most appropriate method for a given decision-making problem.
 ### *Day 7*
-    I attended the google meet session by Vonnue where they discussed the project requirements, expectations, and provided guidance on how to approach the assignment. This session was helpful in clarifying any doubts and ensuring that I am on the right track with my research and development of the Decision Companion System. I also had the opportunity to ask questions and receive feedback from the instructors, which will be valuable as I continue to work on the project in the coming weeks.
+I attended the google meet session by Vonnue where they discussed the project requirements, expectations, and provided guidance on how to approach the assignment. This session was helpful in clarifying any doubts and ensuring that I am on the right track with my research and development of the Decision Companion System. I also had the opportunity to ask questions and receive feedback from the instructors, which will be valuable as I continue to work on the project in the coming weeks.
 Google search command for initialize gradle project:
 - How to initialize a gradle project?
     It provided me with the steps to initialize a Gradle project, which include:
@@ -46,20 +46,20 @@ Google search command for initialize gradle project:
     3. Running the command `gradle init` to set up the basic structure of the project.
     4. Choosing the type of project (e.g., Java application) and providing necessary details when prompted.
 ### *Day 8*
-    Started implementing the initial architecture and project structure for the Decision Companion System. I set up the Gradle build script to manage dependencies and automate the build process. This initial setup will serve as the foundation for developing the various components of the Decision Companion System.
+Started implementing the initial architecture and project structure for the Decision Companion System. I set up the Gradle build script to manage dependencies and automate the build process. This initial setup will serve as the foundation for developing the various components of the Decision Companion System.
 
-    Deleted App.java file and created a basic structure to test the logic of the project.
-    Domain Models
-    - Criterion.java — name + weight
-    - Option.java — name + map of criterion scores
-    - DecisionRequest.java — holds list of options + criteria
-    - DecisionResult.java — holds ranked options + scores + explanation
+Deleted App.java file and created a basic structure to test the logic of the project.
+Domain Models
+- Criterion.java — name + weight
+- Option.java — name + map of criterion scores
+- DecisionRequest.java — holds list of options + criteria
+- DecisionResult.java — holds ranked options + scores + explanation
 
-    Decision Engine
-    - DecisionEngine.java — interface
-    - WeightedSumEngine.java — WSM logic (normalize → multiply → sum → rank)
+Decision Engine
+- DecisionEngine.java — interface
+- WeightedSumEngine.java — WSM logic (normalize → multiply → sum → rank)
 
-    CLI Runner
-    - Main.java — hardcoded sample input to test the engine end to end"
+CLI Runner
+- Main.java — hardcoded sample input to test the engine end to end"
 Prompts I used:
 - create a basic structure which has the most basic features to test the WSM algorithm.
