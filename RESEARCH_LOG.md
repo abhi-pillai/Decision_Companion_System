@@ -63,3 +63,101 @@ CLI Runner
 - Main.java — hardcoded sample input to test the engine end to end"
 - Prompts I used:
     create a basic structure which has the most basic features to test the WSM algorithm.
+
+Day 9
+Architecture, Design Decisions, and Transition to Web Application
+This was the most significant day of design thinking. Several key decisions were made and refined through discussion with Claude.
+Algorithm Selection
+After evaluating all MCDM algorithms researched in Days 4–6, the following decision was made:
+AlgorithmDecisionReasonWSMSelected as coreSimple, transparent, domain-agnostic, fully explainableTOPSISSelected as second engineAdds maturity — ranks by closeness to ideal and distance from worstAHPRejectedPairwise comparisons grow exponentially; too complex for general useELECTRE / PROMETHEERejectedOutranking methods are harder to explain; not suitable for general usersVIKORDeferredGood for future improvement — handles conflicting criteria better
+Prompts used:
+
+As from my previous chat with you I think MCDM is a good candidate for the algorithm. In this which one is best for generality?
+Which architecture are we following?
+What if I use an AI model that takes user's input to suggest the importance of metrics in a particular decision?
+
+Architecture Decision
+Decided on a Layered Architecture with Hexagonal influence, with the Decision Engine as an isolated domain core. Key principle established: DecisionEngine never knows AI exists.
+Layers defined:
+
+Presentation Layer — REST Controller (no logic)
+Application Layer — DecisionService (validate, normalize, orchestrate)
+Domain Layer — Engines + Models (no Spring annotations)
+Infrastructure Layer — AI Advisory (future)
+
+Transition from CLI to Web Application
+The system requirements evolved beyond CLI testing. The user flow was defined as 5 steps:
+
+Enter category
+Enter candidates + score metrics (1–10)
+Assign weights (must sum to 100%)
+Evaluate
+View WSM + TOPSIS rankings + final verdict
+
+Two optional AI buttons were designed (future feature):
+
+"Learn about Metrics" — Gemini API explains metrics for the given category
+"Validate my Input" — Gemini API checks if the input makes sense
+
+Frontend technology selected: Simple HTML + CSS + Vanilla JS (no framework).
+Scoring Approach Decision
+Discussed three approaches for how scores are assigned:
+
+Approach A: Pure manual (0–10) — simple but subjective
+Approach B: Raw value + auto normalization — more objective but fails for qualitative metrics
+Approach C: Hybrid — chosen
+
+All three approaches were ultimately set aside in favour of a simpler and more honest design — a plain rating system:
+
+"Rate each metric from 1 to 10. Higher score = more of it. 1/10 means low, 9–10/10 means high."
+
+For example: 9/10 on Price means high price. 9/10 on Battery means high battery life. 9/10 on Skills means high skill level. The user decides whether high is good or bad for their specific context — the system does not interpret or invert any metric.
+This was chosen because:
+
+Approach B (raw value normalization) fails for qualitative metrics like "Skills Match" — there is no meaningful raw value to normalize
+Approach C (hybrid) adds complexity without solving the core problem
+The plain rating system keeps the system truly generic and puts full interpretive authority with the user
+
+A UI instruction is shown to remind users that some metrics are naturally inverse (e.g. high price may be undesirable) and they should score accordingly based on their own judgment.
+Prompt used:
+How the scores are assigned to each individual candidate's metrics??
+Can I just tell the user somehow prices and metrics like it are inverse and rest are proportional?
+Should I tell like the higher the score the more of it. Like 1/10 low price, low skill set, low battery life, etc. whereas 9 or 10/10 means high price, high skill set, high battery life, high salary, just like a rating system?
+
+Domain Model Updates
+All domain models were updated to support Spring Boot JSON deserialization:
+
+Added no-arg constructors to Criterion, Option, DecisionRequest, DecisionResult
+Added setters to all domain classes
+Added category field to DecisionRequest
+Created CombinedDecisionResponse.java to hold both WSM + TOPSIS results and final verdict
+
+TopsisEngine.java was implemented with full 5-step TOPSIS logic:
+
+Build raw decision matrix
+Normalize by column vector length
+Apply weights
+Compute ideal (max) and anti-ideal (min) per criterion
+Rank by closeness ratio C = d⁻ / (d⁺ + d⁻)
+
+Constraints Identified and Documented
+Through discussion, four honest constraints were identified:
+
+Criteria independence assumed (mathematical limitation — cannot be fixed at this scope)
+Scores are subjective (conscious design decision — by design)
+No consistency check on scores (AHP solves this but is out of scope)
+No disqualification logic (options cannot be eliminated outright)
+
+build.gradle Updated
+Migrated from plain Java CLI app to Spring Boot web application:
+
+Removed id 'application' plugin
+Added Spring Boot 3.2.5 and dependency management plugins
+Added spring-boot-starter-web dependency
+Removed mainClass (Spring Boot handles entry point)
+
+README.md Rewritten
+Full rewrite of README to include: problem understanding, assumptions, technology stack, project structure, algorithm explanations, design decisions, known constraints, how to run, and future improvements.
+
+Data Flow Diagram
+Created a DFD to illustrate the flow of data through the system, from user input to decision engine processing and output generation. This visual aid helps clarify the architecture and design of the system for future reference.
