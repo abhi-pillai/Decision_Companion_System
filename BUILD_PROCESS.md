@@ -31,3 +31,65 @@ First, I defined the core domain models:
 Next, I created the `DecisionEngine` interface, which defines the contract for evaluating a `DecisionRequest` and returning a list of `DecisionResult`. This allows for flexibility in implementing different decision-making algorithms in the future.
 I implemented the `WeightedSumEngine` class, which provides a concrete implementation of the `DecisionEngine` interface using the Weighted Sum Method (WSM). This engine normalizes the criterion weights, multiplies them by the corresponding scores for each option, sums the results, and ranks the options accordingly. This approach allows for a straightforward evaluation of options based on multiple criteria and their respective weights.
 The basic structure of the `Main` class serves as a CLI runner to test the logic of the decision engine end-to-end. It sets up a sample decision scenario with hardcoded options and criteria, runs the evaluation through the `WeightedSumEngine`, and prints the ranked results along with a recommendation for the best option. This setup allows for easy testing and validation of the decision-making logic before integrating it into a web application or other interfaces.
+
+## 4. Algorithm Selection
+Initially, I implemented the Weighted Sum Model (WSM) as it is a straightforward and widely used method for multi-criteria decision making. But now I have also implemented the TOPSIS algorithm, which provides a more nuanced evaluation by considering the distance of each option from an ideal solution. This allows for a more comprehensive analysis of the options based on their performance across multiple criteria. The TOPSIS implementation normalizes the scores, calculates the ideal and anti-ideal solutions, and ranks the options based on their relative closeness to the ideal solution. This addition enhances the robustness of the Decision Companion System by offering users multiple methods for evaluating their decisions.
+
+## 5. Architecture Refinement
+
+The initial architecture included a Repository Layer for persistence. After further thinking, this was removed entirely. The system is stateless by design — each evaluation is computed on demand and returned immediately. There is no need to store results between sessions. Removing persistence keeps the system simpler, faster, and more explainable.
+
+The architecture was refined to:
+
+- **Presentation Layer** — REST Controller, no logic
+- **Application Layer** — DecisionService, validates and orchestrates
+- **Domain Layer** — Engines and Models, no Spring annotations
+- **Infrastructure Layer** — AI Advisory (future only)
+
+A key architectural principle was established: **`DecisionEngine` never knows AI exists.** The AI advisory module sits entirely outside the decision flow and can only advise the user before they submit input.
+
+
+## 6. Transition from CLI to Web Application
+
+The initial CLI runner (`Main.java`) was sufficient to test the WSM algorithm but could not support the full user flow required. The system needed to accept dynamic input from a real user, not hardcoded test data.
+
+The transition involved:
+- Migrating `build.gradle` from plain Java CLI to Spring Boot web application
+- Removing the `application` plugin and `mainClass` entry
+- Adding `spring-boot-starter-web` for REST, embedded Tomcat, and Jackson JSON handling
+- Updating all domain models to support Jackson deserialization by adding no-arg constructors and setters
+- Adding `category` field to `DecisionRequest` to support the final verdict message
+- Creating `CombinedDecisionResponse.java` to bundle both engine results and verdict strings into one response object
+
+Frontend technology chosen: **HTML + CSS + Vanilla JS** — no framework. The goal is a working decision tool, not a showcase of frontend complexity.
+
+## 7. Scoring Design Decision
+A plain 1–10 rating system:
+
+> "Rate each metric from 1 to 10. Higher score = more of it. 1/10 means low, 9–10/10 means high."
+
+For example: 9/10 on Price means high price. 9/10 on Battery means high battery life. The user decides whether high is good or bad for their own context. The system does not interpret or invert any metric.
+
+This was chosen because it keeps the system truly generic, puts full interpretive authority with the user, and avoids the false objectivity of automated normalization. A UI instruction informs users about inverse metrics so they can score accordingly. This design also allows for future AI advisory to suggest scores without needing to know the semantics of each metric.
+
+## 8. TopsisEngine Implementation
+
+`TopsisEngine.java` was implemented with the full 5-step TOPSIS algorithm:
+
+1. Build raw decision matrix from option scores
+2. Normalize each column by its vector length: `xij / sqrt(Σxij²)`
+3. Apply weights: `vij = wj × normalized`
+4. Compute ideal solution A+ (max per column) and anti-ideal A- (min per column)
+5. Compute closeness ratio: `Ci = d⁻ / (d⁺ + d⁻)` — higher means better
+
+Results are sorted by closeness ratio descending. The explanation string attached to each result shows `d+`, `d-`, and `Ci` so the user can see exactly how each option was evaluated.
+
+### Files Modified
+
+| File | What Changed | Why |
+|---|---|---|
+| `build.gradle` | Removed `application` plugin and `mainClass`; added Spring Boot `3.2.5`, dependency management plugin, and `spring-boot-starter-web` | Migrated from plain Java CLI to Spring Boot web application |
+| `Criterion.java` | Added no-arg constructor + `setName()`, `setWeight()` | Required for Jackson JSON deserialization |
+| `Option.java` | Added no-arg constructor + `setName()`, `setScores()` | Required for Jackson JSON deserialization |
+| `DecisionRequest.java` | Added no-arg constructor, all setters, and new `category` field | Required for Jackson deserialization; `category` needed for final verdict message |
+| `DecisionResult.java` | Added no-arg constructor + all setters; removed `toString()` | Required for Jackson serialization; `toString()` no longer needed as Jackson handles JSON output |
