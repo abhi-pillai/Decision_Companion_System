@@ -5,6 +5,8 @@ public class DecisionResult {
     private double score;
     private String explanation;
 
+    public DecisionResult() {}
+
     public DecisionResult(String optionName, double score, String explanation) {
         this.optionName = optionName;
         this.score = score;
@@ -15,16 +17,23 @@ public class DecisionResult {
         return optionName;
     }
 
+    public void setOptionName(String optionName) {
+        this.optionName = optionName;
+    }
+
     public double getScore() {
         return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
     }
 
     public String getExplanation() {
         return explanation;
     }
 
-    @Override
-    public String toString() {
-        return String.format("Option: %-15s | Score: %.4f | %s", optionName, score, explanation);
+    public void setExplanation(String explanation) {
+        this.explanation = explanation;
     }
 }
