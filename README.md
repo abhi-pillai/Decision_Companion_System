@@ -21,7 +21,7 @@ This system solves that by letting the user define what matters (criteria), how 
 
 ## Assumptions
 
-- All scores are entered by the user on a **1–10 scale** where **higher always means more preferable** to that user, i.e. a score of 10 is "best" and 1 is "worst" for that criterion for the user.
+- All scores are entered by the user on a **1–10 scale**. Rate each criterion from 1 (lowest) to 10 (highest). A higher score means better for **your** goal. You decide what best means — if you prefer low cost, rate the cheapest option a 10. If you prefer premium quality, rate the most expensive a 10. There is no universal right answer — only what matters to you.
 - The interpretation of each metric is left entirely to the user — the system does not assume what "better" means for any given criterion
 - Weights must sum to exactly **100%**
 - All candidates must have the **same set of metrics**
@@ -125,6 +125,8 @@ Both verdicts are shown together — giving the user two independent perspective
 
 ![DFD](screenshots/DFD.png)
 
+---
+
 ## Known Constraints
 
 | Constraint | Explanation |
@@ -133,6 +135,11 @@ Both verdicts are shown together — giving the user two independent perspective
 | Scores are subjective | Two users rating the same option may score differently. This is by design — the system is a personal decision aid, not an objective ranker. |
 | No consistency check | The system trusts user scores without verifying internal consistency. AHP addresses this but is out of scope. |
 | No disqualification logic | An option cannot be eliminated outright regardless of scores. All options are always ranked. |
+
+---
+## Known Issues
+
+- **Gradle 9.3.1 incompatibility** — Gradle 9.3.1 is incompatible with Spring Boot 3.2.5 due to a configuration cache serialization error (`DefaultLegacyConfiguration`). The project uses **Gradle 8.7** as a workaround. Gradle 9.x is not supported.
 
 ---
 
@@ -148,7 +155,9 @@ Both verdicts are shown together — giving the user two independent perspective
 # Clone the repository
 git clone https://github.com/abhi-pillai/Decision_Companion_System.git
 cd Decision_Companion_System
-
+# Run the application
+./gradlew bootRun
+```
 
 
 ## What I Would Improve With More Time
@@ -161,7 +170,7 @@ cd Decision_Companion_System
 - **Export results** — Allow users to download results as PDF or CSV
 - **Session history** — Optional local storage of past decisions for reference
 
----
+
 
 ## References
 - [RESEARCH_LOG.md](RESEARCH_LOG.md) — full log of AI prompts, searches, and references used
