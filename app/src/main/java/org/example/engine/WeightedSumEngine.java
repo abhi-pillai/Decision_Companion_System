@@ -30,8 +30,8 @@ public class WeightedSumEngine implements DecisionEngine {
                 explanation.append(String.format("[%s: %.2f x %.2f = %.4f] ",
                         criterion.getName(), score, criterion.getWeight(), weighted));
             }
-
-            results.add(new DecisionResult(option.getName(), totalScore, explanation.toString()));
+            double roundedScore = Math.round(totalScore * 10000.0) / 10000.0;
+            results.add(new DecisionResult(option.getName(), roundedScore, explanation.toString()));
         }
 
         results.sort(Comparator.comparingDouble(DecisionResult::getScore).reversed());
