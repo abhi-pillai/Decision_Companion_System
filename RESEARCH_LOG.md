@@ -64,7 +64,7 @@ CLI Runner
 - Prompts I used:
     create a basic structure which has the most basic features to test the WSM algorithm.
 
-Day 9
+### *Day 9*
 Architecture, Design Decisions, and Transition to Web Application
 This was the most significant day of design thinking. Several key decisions were made and refined through discussion with Claude.
 Algorithm Selection
@@ -161,3 +161,21 @@ Full rewrite of README to include: problem understanding, assumptions, technolog
 
 Data Flow Diagram
 Created a DFD to illustrate the flow of data through the system, from user input to decision engine processing and output generation. This visual aid helps clarify the architecture and design of the system for future reference.
+
+## *Day 10*
+**Gradle Downgrade — Known Issue Discovered**
+
+Gradle 9.3.1 is incompatible with Spring Boot 3.2.5 due to a configuration cache serialization error:
+```
+error writing value of type 'org.gradle.api.internal.artifacts.configurations.DefaultLegacyConfiguration'
+```
+Downgraded to Gradle 8.7 by updating `gradle-wrapper.properties`. Spring Boot ran successfully after downgrade. This issue was documented in README under Known Issues.
+
+**Main.java Extended**
+
+`Main.java` was extended to test both engines simultaneously:
+- Added `TopsisEngine` alongside `WeightedSumEngine`
+- Separate ranked output printed for each engine
+- Final recommendation line shows both WSM and TOPSIS winners
+- Print format fixed to use getters instead of the removed `toString()`
+- `DecisionRequest` constructor updated to include `"Laptop Selection"` as category
