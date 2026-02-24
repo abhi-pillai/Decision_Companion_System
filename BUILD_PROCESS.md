@@ -93,3 +93,17 @@ Results are sorted by closeness ratio descending. The explanation string attache
 | `Option.java` | Added no-arg constructor + `setName()`, `setScores()` | Required for Jackson JSON deserialization |
 | `DecisionRequest.java` | Added no-arg constructor, all setters, and new `category` field | Required for Jackson deserialization; `category` needed for final verdict message |
 | `DecisionResult.java` | Added no-arg constructor + all setters; removed `toString()` | Required for Jackson serialization; `toString()` no longer needed as Jackson handles JSON output |
+
+## 9. Gradle Downgrade
+Gradle 9.3.1 was found to be incompatible with Spring Boot 3.2.5 due to a configuration cache serialization error:
+error writing value of type 'org.gradle.api.internal.artifacts.configurations.DefaultLegacyConfiguration'
+Downgraded to Gradle 8.7 by updating gradle-wrapper.properties. Spring Boot ran successfully after the downgrade. This issue was documented in README under Known Issues.
+
+### Files Modified
+
+| File | Changes Made | Reason |
+|------|--------------|--------|
+| `gradle-wrapper.properties` | Downgraded Gradle version from **9.3.1** to **8.7** | Gradle 9.3.1 is incompatible with Spring Boot 3.2.5 |
+| `WeightedSumEngine.java` | Added score rounding using `Math.round()` | Resolved floating-point precision issue (e.g., `5.300000000000001`) |
+| `Main.java` | - Added `TopsisEngine` test execution <br> - Corrected weights to ensure sum equals **1.0** <br> - Added category parameter to constructor <br> - Improved output formatting | Enabled validation of both decision engines and fixed incorrect weight configuration from earlier testing |
+| `.gitignore` | - Ignored Gradle build and cache directories <br> - Excluded VS Code workspace settings <br> - Excluded Windows system files <br> - Ignored local environment and Spring Boot override files <br> - Preserved Gradle wrapper for portability | Ensures clean version control by excluding generated, local, and system-specific files while maintaining project portability |
