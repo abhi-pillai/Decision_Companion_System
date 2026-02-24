@@ -5,6 +5,7 @@ import org.example.domain.DecisionRequest;
 import org.example.domain.DecisionResult;
 import org.example.domain.Option;
 import org.example.engine.DecisionEngine;
+import org.example.engine.TopsisEngine;
 import org.example.engine.WeightedSumEngine;
 
 import java.util.List;
@@ -15,9 +16,9 @@ public class Main {
 
         // --- CRITERIA (name, weight) --- weights must sum to 1.0
         List<Criterion> criteria = List.of(
-            new Criterion("Performance", 1),
-            new Criterion("Battery",     0.0),
-            new Criterion("Price",       0.0)
+            new Criterion("Performance", 0.40),
+            new Criterion("Battery",     0.30),
+            new Criterion("Price",       0.30)
         );
 
         // --- OPTIONS (name, criterion scores out of 10) ---
@@ -40,21 +41,37 @@ public class Main {
         );
 
         // --- RUN ENGINE ---
-        DecisionRequest request = new DecisionRequest(options, criteria);
+        DecisionRequest request = new DecisionRequest("Laptop Selection", options, criteria);
         DecisionEngine engine = new WeightedSumEngine();
         List<DecisionResult> results = engine.evaluate(request);
+        DecisionEngine engine2= new TopsisEngine();
+        List<DecisionResult> results2 = engine2.evaluate(request);
+
 
         // --- PRINT RESULTS ---
         System.out.println("\n========== DECISION COMPANION SYSTEM ==========");
         System.out.println("Decision: Which laptop should I buy?\n");
 
+        System.out.println("--- WEIGHTED SUM RESULTS ---");
         int rank = 1;
         for (DecisionResult result : results) {
-            System.out.println("Rank #" + rank + " | " + result);
+            System.out.println("Rank #" + rank + " | Option: " + result.getOptionName() +
+            " | Score: " + String.format("%.4f", result.getScore()) +
+            " | " + result.getExplanation());
             rank++;
         }
 
-        System.out.println("\n>> Recommendation: " + results.get(0).getOptionName());
+        System.out.println("\n--- TOPSIS RESULTS ---");
+        rank = 1;
+        for (DecisionResult result : results2) {
+            System.out.println("Rank #" + rank + " | Option: " + result.getOptionName() +
+            " | Score: " + String.format("%.4f", result.getScore()) +
+            " | " + result.getExplanation());
+            rank++;
+        }
+
+        System.out.println("\n>> Recommendation: " + results.get(0).getOptionName()+
+        " (Weighted Sum) and " + results2.get(0).getOptionName() + " (TOPSIS)");
         System.out.println("================================================\n");
     }
 }
