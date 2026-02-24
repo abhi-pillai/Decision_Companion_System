@@ -1,8 +1,53 @@
-# Ignore Gradle project-specific cache directory
-.gradle
+##################################################
+# Gradle
+##################################################
 
-# Ignore Gradle build output directory
-build
+.gradle/
+build/
 
-# Ignore Kotlin plugin data
-.kotlin
+# Keep Gradle Wrapper (DO NOT remove these)
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+##################################################
+# Java
+##################################################
+
+*.class
+*.log
+
+##################################################
+# VS Code
+##################################################
+
+.vscode/
+
+##################################################
+# Windows
+##################################################
+
+Thumbs.db
+Desktop.ini
+
+##################################################
+# Spring Boot Local Config
+##################################################
+
+application-local.properties
+application-*.local.properties
+
+##################################################
+# Environment Files
+##################################################
+
+.env
+.env.*
+*.env
+
+##################################################
+# Temporary Files
+##################################################
+
+*.swp
+*.swo
+*~
