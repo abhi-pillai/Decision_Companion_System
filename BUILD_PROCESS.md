@@ -107,3 +107,24 @@ Downgraded to Gradle 8.7 by updating gradle-wrapper.properties. Spring Boot ran 
 | `WeightedSumEngine.java` | Added score rounding using `Math.round()` | Resolved floating-point precision issue (e.g., `5.300000000000001`) |
 | `Main.java` | - Added `TopsisEngine` test execution <br> - Corrected weights to ensure sum equals **1.0** <br> - Added category parameter to constructor <br> - Improved output formatting | Enabled validation of both decision engines and fixed incorrect weight configuration from earlier testing |
 | `.gitignore` | - Ignored Gradle build and cache directories <br> - Excluded VS Code workspace settings <br> - Excluded Windows system files <br> - Ignored local environment and Spring Boot override files <br> - Preserved Gradle wrapper for portability | Ensures clean version control by excluding generated, local, and system-specific files while maintaining project portability |
+
+## 10. Backend Completion and Verification
+
+The remaining backend files were completed and verified end-to-end:
+
+- **`DecisionService.java`** — orchestrates the full flow: validates input, normalizes weights from percentage to decimal, runs both WSM and TOPSIS engines, and assembles the combined response with verdict strings
+- **`DecisionController.java`** — REST endpoint at `POST /api/decision/evaluate` with `@CrossOrigin` to prevent browser CORS errors; returns 200 OK on success and 400 Bad Request on validation failure
+- **`application.properties`** — minimal configuration: app name and port 8080
+- **`DecisionCompanionApplication.java`** — Spring Boot entry point with `@SpringBootApplication`
+
+Backend was verified using Postman with a laptop selection test case. Response confirmed correct WSM scores, TOPSIS closeness ratios between 0 and 1, correct verdict strings, and no null fields.
+
+---
+### New Files Created
+
+| File | Location | Purpose |
+|---|---|---|
+| `DecisionService.java` | `service/` | Validation, normalization, orchestration |
+| `DecisionController.java` | `controller/` | REST endpoint POST /api/decision/evaluate |
+| `DecisionCompanionApplication.java` | `org/example/` | Spring Boot entry point |
+| `application.properties` | `resources/` | App name and port configuration |
