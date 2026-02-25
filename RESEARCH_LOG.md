@@ -179,3 +179,29 @@ Downgraded to Gradle 8.7 by updating `gradle-wrapper.properties`. Spring Boot ra
 - Final recommendation line shows both WSM and TOPSIS winners
 - Print format fixed to use getters instead of the removed `toString()`
 - `DecisionRequest` constructor updated to include `"Laptop Selection"` as category
+
+**Floating Point Bug Fixed**
+
+WSM engine produced `5.300000000000001` instead of `5.3` for Lenovo's score. Fixed by rounding the total score using:
+```java
+double roundedScore = Math.round(totalScore * 10000.0) / 10000.0;
+```
+
+
+## *Day 11*
+
+**Backend Completion and Verification**
+
+Completed the remaining backend files:
+
+- `DecisionService.java` — orchestrates the full flow: validates input, normalizes weights from percentage to decimal, runs both WSM and TOPSIS engines, and assembles the combined response with verdict strings
+- `DecisionController.java` — REST endpoint at `POST /api/decision/evaluate` with `@CrossOrigin` to prevent browser CORS errors; returns 200 OK on success and 400 Bad Request on validation failure with the error message
+- `application.properties` — minimal configuration: app name and port 8080
+- `DecisionCompanionApplication.java` — Spring Boot entry point with `@SpringBootApplication`
+
+Backend was verified end-to-end using Postman with a laptop selection test case. Response confirmed:
+- WSM scores correct and ranked properly
+- TOPSIS closeness ratios between 0 and 1
+- Both verdict strings formed correctly
+- No null fields in response
+
