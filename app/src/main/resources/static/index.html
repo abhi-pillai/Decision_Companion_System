@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Decision Companion System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0f;
+      --surface:   #12121a;
+      --surface2:  #1a1a26;
+      --border:    #2a2a3d;
+      --accent:    #6c63ff;
+      --accent2:   #00d4aa;
+      --danger:    #ff4f4f;
+      --text:      #e8e8f0;
+      --muted:     #6b6b8a;
+      --wsm:       #6c63ff;
+      --topsis:    #00d4aa;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 6rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 4rem 0 3rem;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .header-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.3rem 0.8rem;
+      border-radius: 2px;
+      margin-bottom: 1.2rem;
+    }
+
+    header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.8rem;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.85rem;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* Step indicator */
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0.5rem 0.8rem;
+      border-radius: 4px;
+      transition: color 0.3s;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .step.active { color: var(--accent); }
+    .step.done { color: var(--accent2); }
+
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      flex-shrink: 0;
+    }
+
+    .step-divider {
+      flex: 0 0 2rem;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--accent), #9b93ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-subtitle {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+    }
+
+    /* Form elements */
+    label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
+
+    .form-group { margin-bottom: 1.2rem; }
+
+    /* Hint box */
+    .hint {
+      background: rgba(108,99,255,0.08);
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: 4px;
+      padding: 0.8rem 1rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .hint strong { color: var(--accent); }
+
+    /* Criteria row */
+    .criteria-list { display: flex; flex-direction: column; gap: 0.8rem; }
+
+    .criterion-row {
+      display: grid;
+      grid-template-columns: 1fr 120px 36px;
+      gap: 0.6rem;
+      align-items: center;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.7rem 0.8rem;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .criterion-row input {
+      background: transparent;
+      border: none;
+      padding: 0;
+      font-size: 0.85rem;
+    }
+
+    .criterion-row input:focus { border: none; }
+
+    .weight-input {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .weight-input input {
+      text-align: right;
+      width: 60px;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .weight-unit { color: var(--muted); font-size: 0.8rem; }
+
+    /* Weight total */
+    .weight-total {
+      text-align: right;
+      font-size: 0.78rem;
+      margin-top: 0.6rem;
+      color: var(--muted);
+      transition: color 0.3s;
+    }
+
+    .weight-total.valid { color: var(--accent2); }
+    .weight-total.invalid { color: var(--danger); }
+
+    /* Options */
+    .options-list { display: flex; flex-direction: column; gap: 1.2rem; }
+
+    .option-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.2rem;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .option-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .option-name-input {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      padding: 0.3rem 0;
+      width: auto;
+      flex: 1;
+      margin-right: 1rem;
+    }
+
+    .option-name-input:focus { border-bottom-color: var(--accent); }
+
+    .scores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.8rem;
+    }
+
+    .score-field label {
+      margin-bottom: 0.3rem;
+      font-size: 0.68rem;
+    }
+
+    .score-field input {
+      font-size: 0.85rem;
+      padding: 0.5rem 0.7rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 4px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 0.4rem;
+    }
+
+    .btn-danger:hover { color: var(--danger); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 500;
+      width: 100%;
+      justify-content: center;
+      padding: 0.9rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover::after { background: rgba(255,255,255,0.08); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* Error */
+    .error-box {
+      background: rgba(255,79,79,0.08);
+      border: 1px solid rgba(255,79,79,0.3);
+      border-radius: 4px;
+      padding: 0.8rem 1rem;
+      font-size: 0.8rem;
+      color: var(--danger);
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .error-box.show { display: block; }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      display: none;
+    }
+
+    .loading.show { display: block; }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    .loading p { color: var(--muted); font-size: 0.8rem; }
+
+    /* Results */
+    #results { display: none; }
+    #results.show { display: block; }
+
+    .verdict-banner {
+      background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(0,212,170,0.1));
+      border: 1px solid rgba(108,99,255,0.3);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .verdict-banner h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .verdict-banner p {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .verdict-banner .topsis-verdict {
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+    }
+
+    .verdict-banner .wsm-verdict {
+      font-size: 0.82rem;
+      color: var(--accent2);
+    }
+
+    /* Rankings */
+    .rankings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 600px) { .rankings-grid { grid-template-columns: 1fr; } }
+
+    .ranking-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .ranking-header {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .ranking-badge {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .ranking-badge.wsm { background: var(--wsm); }
+    .ranking-badge.topsis { background: var(--topsis); }
+
+    .ranking-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .ranking-subtitle {
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    .ranking-list { padding: 0.8rem; }
+
+    .rank-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 0.8rem;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .rank-item:hover { background: var(--surface2); }
+
+    .rank-item:last-child { margin-bottom: 0; }
+
+    .rank-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--border);
+      width: 24px;
+      flex-shrink: 0;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .rank-item:first-child .rank-num { color: var(--accent); }
+
+    .rank-info { flex: 1; min-width: 0; }
+
+    .rank-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rank-score {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .rank-bar-wrap {
+      width: 100%;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 0.4rem;
+    }
+
+    .rank-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .rank-bar.wsm { background: var(--wsm); }
+    .rank-bar.topsis { background: var(--topsis); }
+
+    /* Breakdown toggle */
+    .breakdown {
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+
+    .breakdown.show { display: block; }
+
+    /* Reset button */
+    .reset-row {
+      text-align: center;
+      margin-top: 1rem;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+    }
+
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="header-badge">MCDM — WSM + TOPSIS</div>
+    <h1>Decision Companion</h1>
+    <p>Evaluate any decision with weighted criteria. Rate your options, set priorities, get a ranked recommendation.</p>
+  </header>
+
+  <!-- Step Indicator -->
+  <div class="steps">
+    <div class="step active" id="step-1"><div class="step-num">1</div><span>Category</span></div>
+    <div class="step-divider"></div>
+    <div class="step" id="step-2"><div class="step-num">2</div><span>Criteria</span></div>
+    <div class="step-divider"></div>
+    <div class="step" id="step-3"><div class="step-num">3</div><span>Options</span></div>
+    <div class="step-divider"></div>
+    <div class="step" id="step-4"><div class="step-num">4</div><span>Results</span></div>
+  </div>
+
+  <!-- Error Box -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- STEP 1: Category -->
+  <div class="card" id="card-category">
+    <div class="card-header">
+      <div class="card-icon">01</div>
+      <div>
+        <div class="card-title">What are you deciding?</div>
+        <div class="card-subtitle">Enter a category for your decision</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Decision Category</label>
+      <input type="text" id="categoryInput" placeholder="e.g. Laptop Selection, Job Candidate, Travel Destination" />
+    </div>
+  </div>
+
+  <!-- STEP 2: Criteria + Weights -->
+  <div class="card" id="card-criteria">
+    <div class="card-header">
+      <div class="card-icon">02</div>
+      <div>
+        <div class="card-title">Define your criteria</div>
+        <div class="card-subtitle">What matters to you, and how much?</div>
+      </div>
+    </div>
+
+    <div class="hint">
+      <strong>Scoring guide:</strong> Rate each criterion from <strong>1</strong> (lowest) to <strong>10</strong> (highest). A higher score means better for <strong>your</strong> goal. You decide what best means — if you prefer low cost, rate the cheapest option a 10. If you prefer premium quality, rate the most expensive a 10. There is no universal right answer — only what matters to you.
+    </div>
+
+    <div class="criteria-list" id="criteriaList"></div>
+
+    <div class="weight-total" id="weightTotal">Total weight: 0%</div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="addCriterion()">+ Add Criterion</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Options -->
+  <div class="card" id="card-options">
+    <div class="card-header">
+      <div class="card-icon">03</div>
+      <div>
+        <div class="card-title">Add your candidates</div>
+        <div class="card-subtitle">Rate each candidate on every criterion (1–10)</div>
+      </div>
+    </div>
+    <div class="options-list" id="optionsList"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="addOption()">+ Add Candidate</button>
+    </div>
+  </div>
+
+  <!-- Evaluate Button -->
+  <button class="btn btn-primary" id="evaluateBtn" onclick="runEvaluation()">
+    Evaluate Decision &rarr;
+  </button>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Running WSM and TOPSIS algorithms...</p>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="divider"></div>
+
+    <!-- Verdict Banner -->
+    <div class="verdict-banner">
+      <h2>Decision Made</h2>
+      <div class="topsis-verdict" id="topsisVerdict"></div>
+      <div class="wsm-verdict" id="wsmVerdict"></div>
+    </div>
+
+    <!-- Rankings Grid -->
+    <div class="rankings-grid">
+
+      <!-- WSM -->
+      <div class="ranking-card">
+        <div class="ranking-header">
+          <div class="ranking-badge wsm"></div>
+          <div>
+            <div class="ranking-title">Weighted Sum Model</div>
+            <div class="ranking-subtitle">Ranked by total weighted score</div>
+          </div>
+        </div>
+        <div class="ranking-list" id="wsmList"></div>
+      </div>
+
+      <!-- TOPSIS -->
+      <div class="ranking-card">
+        <div class="ranking-header">
+          <div class="ranking-badge topsis"></div>
+          <div>
+            <div class="ranking-title">TOPSIS</div>
+            <div class="ranking-subtitle">Ranked by closeness to ideal</div>
+          </div>
+        </div>
+        <div class="ranking-list" id="topsisList"></div>
+      </div>
+
+    </div>
+
+    <div class="reset-row">
+      <button class="btn btn-ghost" onclick="resetAll()">&#8635; Start New Decision</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────
+  let criteriaCount = 0;
+  let optionCount   = 0;
+
+  // ── Init ───────────────────────────────────────────────────────
+  addCriterion(); addCriterion(); addCriterion();
+  addOption();    addOption();
+
+  // ── Add Criterion ──────────────────────────────────────────────
+  function addCriterion() {
+    criteriaCount++;
+    const id = criteriaCount;
+    const row = document.createElement('div');
+    row.className = 'criterion-row';
+    row.id = 'criterion-' + id;
+    row.innerHTML = `
+      <input type="text" placeholder="Criterion name (e.g. Performance)" 
+             id="cname-${id}" oninput="syncCriteriaToOptions()" />
+      <div class="weight-input">
+        <input type="number" min="0" max="100" placeholder="0" 
+               id="cweight-${id}" oninput="updateWeightTotal()" style="width:60px"/>
+        <span class="weight-unit">%</span>
+      </div>
+      <button class="btn btn-danger" onclick="removeCriterion(${id})" title="Remove">&#10005;</button>
+    `;
+    document.getElementById('criteriaList').appendChild(row);
+    updateWeightTotal();
+    syncCriteriaToOptions();
+  }
+
+  function removeCriterion(id) {
+    const el = document.getElementById('criterion-' + id);
+    if (el) el.remove();
+    updateWeightTotal();
+    syncCriteriaToOptions();
+  }
+
+  function updateWeightTotal() {
+    let total = 0;
+    document.querySelectorAll('[id^="cweight-"]').forEach(input => {
+      total += parseFloat(input.value) || 0;
+    });
+    const el = document.getElementById('weightTotal');
+    el.textContent = 'Total weight: ' + total + '%';
+    el.className = 'weight-total ' + (Math.abs(total - 100) < 0.01 ? 'valid' : 'invalid');
+  }
+
+  // ── Sync criteria names into option score fields ───────────────
+function syncCriteriaToOptions() {
+    const names = getCriteriaNames();
+    document.querySelectorAll('[id^="option-"]').forEach(optCard => {
+      const optId = optCard.id.replace('option-', '');
+      const grid  = document.getElementById('scores-' + optId);
+      if (!grid) return;
+      grid.innerHTML = '';
+      names.forEach(name => {
+        if (!name) return;
+        const field = document.createElement('div');
+        field.className = 'score-field';
+        field.innerHTML = `
+          <label>${name}</label>
+          <input type="number" min="1" max="10" placeholder="1–10"
+                 id="score-${optId}-${name.replace(/\s+/g,'_')}" />
+        `;
+        grid.appendChild(field);
+      });
+    });
+  }
+
+  function getCriteriaNames() {
+    const names = [];
+    document.querySelectorAll('[id^="cname-"]').forEach(i => names.push(i.value.trim()));
+    return names;
+  }
+
+  // ── Add Option ─────────────────────────────────────────────────
+  function addOption() {
+    optionCount++;
+    const id   = optionCount;
+    const card = document.createElement('div');
+    card.className = 'option-card';
+    card.id = 'option-' + id;
+    card.innerHTML = `
+      <div class="option-header">
+        <input class="option-name-input" type="text" placeholder="Candidate name (e.g. Dell XPS)"
+               id="oname-${id}" />
+        <button class="btn btn-danger" onclick="removeOption(${id})" title="Remove">&#10005;</button>
+      </div>
+      <div class="scores-grid" id="scores-${id}"></div>
+    `;
+    document.getElementById('optionsList').appendChild(card);
+    syncCriteriaToOptions();
+  }
+
+  function removeOption(id) {
+    const el = document.getElementById('option-' + id);
+    if (el) el.remove();
+  }
+
+  // ── Evaluate ───────────────────────────────────────────────────
+  async function runEvaluation() {
+    hideError();
+    const category = document.getElementById('categoryInput').value.trim();
+    if (!category) return showError('Please enter a decision category.');
+
+    const criteriaNames    = [];
+    const criteriaWeights  = [];
+
+    document.querySelectorAll('[id^="cname-"]').forEach(input => {
+      criteriaNames.push(input.value.trim());
+    });
+    document.querySelectorAll('[id^="cweight-"]').forEach(input => {
+      criteriaWeights.push(parseFloat(input.value) || 0);
+    });
+
+    if (criteriaNames.some(n => !n)) return showError('All criterion names must be filled in.');
+
+    const totalWeight = criteriaWeights.reduce((a, b) => a + b, 0);
+    if (Math.abs(totalWeight - 100) > 0.01)
+      return showError('Weights must sum to exactly 100%. Current total: ' + totalWeight + '%');
+
+    const criteria = criteriaNames.map((name, i) => ({ name, weight: criteriaWeights[i] }));
+
+    // Build options
+    const optionCards = document.querySelectorAll('[id^="option-"]');
+    if (optionCards.length < 2) return showError('Please add at least 2 candidates.');
+
+    const options = [];
+    for (const card of optionCards) {
+      const optId = card.id.replace('option-', '');
+      const name  = document.getElementById('oname-' + optId)?.value.trim();
+      if (!name) return showError('All candidate names must be filled in.');
+
+      const scores = {};
+      for (const cname of criteriaNames) {
+        if (!cname) continue;
+        const key   = 'score-' + optId + '-' + cname.replace(/\s+/g, '_');
+        const input = document.getElementById(key);
+        const val   = parseFloat(input?.value);
+        if (!input || isNaN(val) || val < 1 || val > 10)
+          return showError(`Score for "${cname}" in "${name}" must be between 1 and 10.`);
+        scores[cname] = val;
+      }
+      options.push({ name, scores });
+    }
+
+    // Send request
+    setLoading(true);
+    try {
+      const res = await fetch('/api/decision/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, options, criteria })
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        return showError(msg || 'Server error. Please try again.');
+      }
+
+      const data = await res.json();
+      renderResults(data);
+    } catch (e) {
+      showError('Could not connect to server. Make sure the backend is running on port 8080.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── Render Results ─────────────────────────────────────────────
+  function renderResults(data) {
+    document.getElementById('topsisVerdict').textContent = data.topsisVerdict;
+    document.getElementById('wsmVerdict').textContent    = data.wsmVerdict;
+
+    // WSM max score for bar scaling
+    const wsmMax = Math.max(...data.wsmRanking.map(r => r.score));
+    renderRankingList('wsmList', data.wsmRanking, 'wsm', wsmMax, 10);
+
+    // TOPSIS max is always 1
+    renderRankingList('topsisList', data.topsisRanking, 'topsis', 1, 4);
+
+    document.getElementById('results').classList.add('show');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Update step indicator
+    updateSteps(4);
+  }
+
+  function renderRankingList(containerId, ranking, type, maxScore, decimals) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    ranking.forEach((item, idx) => {
+      const pct  = (item.score / maxScore) * 100;
+      const div  = document.createElement('div');
+      div.className = 'rank-item';
+      div.innerHTML = `
+        <div class="rank-num">${idx + 1}</div>
+        <div class="rank-info">
+          <div class="rank-name">${item.optionName}</div>
+          <div class="rank-score">${item.score.toFixed(decimals)}</div>
+          <div class="rank-bar-wrap">
+            <div class="rank-bar ${type}" style="width:0%" data-width="${pct}%"></div>
+          </div>
+          <div class="breakdown" id="bd-${type}-${idx}">${item.explanation}</div>
+        </div>
+      `;
+      div.addEventListener('click', () => toggleBreakdown(type, idx));
+      container.appendChild(div);
+    });
+
+    // Animate bars
+    setTimeout(() => {
+      document.querySelectorAll(`.rank-bar.${type}`).forEach(bar => {
+        bar.style.width = bar.dataset.width;
+      });
+    }, 100);
+  }
+
+  function toggleBreakdown(type, idx) {
+    const el = document.getElementById('bd-' + type + '-' + idx);
+    if (el) el.classList.toggle('show');
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = msg;
+    box.classList.add('show');
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setLoading(false);
+  }
+
+  function hideError() {
+    document.getElementById('errorBox').classList.remove('show');
+  }
+
+  function setLoading(show) {
+    document.getElementById('loading').className   = 'loading'  + (show ? ' show' : '');
+    document.getElementById('evaluateBtn').disabled = show;
+  }
+
+  function updateSteps(active) {
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById('step-' + i);
+      el.className = 'step ' + (i < active ? 'done' : i === active ? 'active' : '');
+    }
+  }
+
+  function resetAll() {
+    document.getElementById('categoryInput').value = '';
+    document.getElementById('criteriaList').innerHTML  = '';
+    document.getElementById('optionsList').innerHTML   = '';
+    document.getElementById('results').classList.remove('show');
+    criteriaCount = 0;
+    optionCount   = 0;
+    hideError();
+    updateSteps(1);
+    addCriterion(); addCriterion(); addCriterion();
+    addOption();    addOption();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Update steps as user fills in
+  document.getElementById('categoryInput').addEventListener('input', () => {
+    if (document.getElementById('categoryInput').value.trim()) updateSteps(2);
+    else updateSteps(1);
+  });
+</script>
+</body>
+</html>
