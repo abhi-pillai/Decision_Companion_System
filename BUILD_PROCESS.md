@@ -128,3 +128,21 @@ Backend was verified using Postman with a laptop selection test case. Response c
 | `DecisionController.java` | `controller/` | REST endpoint POST /api/decision/evaluate |
 | `DecisionCompanionApplication.java` | `org/example/` | Spring Boot entry point |
 | `application.properties` | `resources/` | App name and port configuration |
+
+### 11. Frontend Development
+The frontend was developed using plain HTML, CSS, and JavaScript to create a simple user interface. 
+Built `index.html` — a single-page web app served by Spring Boot at `http://localhost:8080`. Design: modern dark theme with professional card-based layout using `Syne` and `DM Mono` fonts.
+
+**Features implemented:**
+- Step indicator showing progress through 4 stages
+- Dynamic criteria input with live weight total (green at 100%, red otherwise)
+- Auto-generated score fields per candidate based on criteria names entered
+- Side-by-side WSM and TOPSIS ranking cards with animated score bars
+- Click-to-expand breakdown explanation per candidate
+- Final verdict banner showing both algorithm winners
+- Error display for all validation failures
+- Loading spinner during API call
+- Reset button to start a new decision
+
+**Bug 1 — Candidate data clearing:**
+Adding a new candidate wiped all previously entered scores.
