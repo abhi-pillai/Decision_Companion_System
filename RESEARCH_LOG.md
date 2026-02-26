@@ -205,3 +205,25 @@ Backend was verified end-to-end using Postman with a laptop selection test case.
 - Both verdict strings formed correctly
 - No null fields in response
 
+## *Day 12*
+**Frontend Implementation**
+Implemented a simple frontend using HTML, CSS, and vanilla JavaScript:
+
+Built `index.html` — a single-page web app served by Spring Boot at `http://localhost:8080`. Design chosen: modern dark theme with professional card-based layout.
+
+Features implemented:
+- Step indicator showing progress through the 4 stages
+- Dynamic criteria input with live weight total (turns green at 100%, red otherwise)
+- Auto-generated score fields per candidate based on criteria names entered
+- Side-by-side WSM and TOPSIS ranking cards with animated score bars
+- Click-to-expand breakdown explanation per candidate
+- Final verdict banner showing both algorithm winners
+- Error display for all validation failures
+- Loading spinner during API call
+- Reset button to start a new decision
+
+Prompt used:
+- *I want a modern dark theme, cards, professional look for the frontend*
+
+**Frontend Bug — Candidate Data Clearing**
+When a new candidate was added, all previously entered score data in existing candidates was wiped.
