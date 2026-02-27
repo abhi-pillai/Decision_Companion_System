@@ -812,23 +812,39 @@
   }
 
   // ── Sync criteria names into option score fields ───────────────
-function syncCriteriaToOptions() {
+  // FIX: Preserve existing input values before rebuilding the grid
+  function syncCriteriaToOptions() {
     const names = getCriteriaNames();
+
     document.querySelectorAll('[id^="option-"]').forEach(optCard => {
       const optId = optCard.id.replace('option-', '');
       const grid  = document.getElementById('scores-' + optId);
       if (!grid) return;
+
+      // ── SAVE existing values before clearing ──────────────────
+      const savedValues = {};
+      grid.querySelectorAll('input[type="number"]').forEach(input => {
+        savedValues[input.id] = input.value;
+      });
+
+      // Rebuild grid
       grid.innerHTML = '';
       names.forEach(name => {
         if (!name) return;
+        const key = `score-${optId}-${name.replace(/\s+/g, '_')}`;
         const field = document.createElement('div');
         field.className = 'score-field';
         field.innerHTML = `
           <label>${name}</label>
-          <input type="number" min="1" max="10" placeholder="1–10"
-                 id="score-${optId}-${name.replace(/\s+/g,'_')}" />
+          <input type="number" min="1" max="10" placeholder="1–10" id="${key}" />
         `;
         grid.appendChild(field);
+
+        // ── RESTORE saved value if it existed ─────────────────
+        if (savedValues[key] !== undefined && savedValues[key] !== '') {
+          const newInput = document.getElementById(key);
+          if (newInput) newInput.value = savedValues[key];
+        }
       });
     });
   }
@@ -855,7 +871,19 @@ function syncCriteriaToOptions() {
       <div class="scores-grid" id="scores-${id}"></div>
     `;
     document.getElementById('optionsList').appendChild(card);
-    syncCriteriaToOptions();
+    // Only populate the new card's score fields, no need to rebuild existing ones
+    const grid = document.getElementById('scores-' + id);
+    getCriteriaNames().forEach(name => {
+      if (!name) return;
+      const key = `score-${id}-${name.replace(/\s+/g, '_')}`;
+      const field = document.createElement('div');
+      field.className = 'score-field';
+      field.innerHTML = `
+        <label>${name}</label>
+        <input type="number" min="1" max="10" placeholder="1–10" id="${key}" />
+      `;
+      grid.appendChild(field);
+    });
   }
 
   function removeOption(id) {
