@@ -227,3 +227,41 @@ Prompt used:
 
 **Frontend Bug — Candidate Data Clearing**
 When a new candidate was added, all previously entered score data in existing candidates was wiped.
+
+## *Day 13*
+**Frontend Bug Fix — Candidate Data Clearing**
+syncCriteriaToOptions() was called every time a new candidate was added. That function wiped every score grid with grid.innerHTML = '' and rebuilt it from scratch — with empty inputs. So any scores you'd typed into existing candidates were lost.
+*The Fix*
+- Value preservation in syncCriteriaToOptions: Before clearing the grid, all existing input values are snapshot into a savedValues object keyed by input ID. After the grid is rebuilt, those values are written back into the new inputs.
+- addOption no longer calls syncCriteriaToOptions: Adding a new candidate now directly builds only that new card's score fields inline, so existing candidates are never touched at all. The full sync (which iterates every card) is only needed when criteria names change, not when a new candidate is added.
+Prompt used (Claude):
+- *I modified my index.html to resolve the bug: Candidate Data Clearing. But a new error came.*
+```
+POST http://localhost:8080/api/decision/evaluate 404 (Not Found)
+```
+
+Claude helped me debug this issue with the following steps:
+
+Step 1 — Verified Spring Boot was running. Terminal confirmed `Started DecisionCompanionApplication` and `Tomcat started on port 8080`. Spring Boot was running correctly.
+
+Step 2 — Checked Network tab in browser dev tools (F12). Request URL was correct: `http://localhost:8080/api/decision/evaluate`. Status 404. Request was reaching Spring Boot but no endpoint was found.
+
+Step 3 — Checked compiled build output:
+```
+app/build/classes/java/main/org/example/
+    ├── domain/
+    ├── engine/
+    └── service/
+    (controller/ missing)
+```
+
+`controller/` was missing from the compiled output — `DecisionController.java` was not being compiled by Gradle.
+**Root cause: Stale configuration cache in Gradle.** Gradle's configuration cache was not detecting changes to the `controller` package, so it was not recompiling that code. This is a known issue with Gradle's configuration cache when new source sets or packages are added.
+Google search used:
+- *Gradle configuration cache stale recompile issue Spring Boot*
+- *gradlew clean bootRun force recompile*
+**Fix applied:**
+```
+./gradlew clean bootRun
+```
+`clean` wiped the stale cache and forced a full fresh recompile. Controller was picked up correctly and 404 was resolved.
