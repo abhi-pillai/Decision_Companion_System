@@ -5,7 +5,8 @@ To build the Decision Companion System, Stack Chosen:
 - **Build Tool**: Gradle
 - **Version Control**: Git
 - **IDE**: Visual Studio Code
-I chose Java due to its robustness, scalability, and extensive libraries that can support the development of a complex system like the Decision Companion System. Spring Boot is a popular framework for building web applications and microservices, which will allow for rapid development and easy integration of various components. Gradle is a powerful build tool that can manage dependencies and automate the build process efficiently. Git will be used for version control to track changes and collaborate effectively. Visual Studio Code is a versatile IDE that supports Java development and offers various extensions to enhance productivity.
+- **Frontend**: HTML, CSS, Vanilla JavaScript
+I chose Java due to its robustness, scalability, and extensive libraries that can support the development of a complex system like the Decision Companion System. Spring Boot is a popular framework for building web applications and microservices, which will allow for rapid development and easy integration of various components. Gradle is a powerful build tool that can manage dependencies and automate the build process efficiently. Git will be used for version control to track changes and collaborate effectively. Visual Studio Code is a versatile IDE that supports Java development and offers various extensions to enhance productivity. For the frontend, I opted for plain HTML, CSS, and JavaScript to keep the user interface simple and lightweight, ensuring that the focus remains on the functionality of the decision-making process rather than on complex frontend frameworks. This technology stack provides a solid foundation for building a scalable and maintainable Decision Companion System.
 
 ## 2. Initial Architecture & Project Structure
 
@@ -146,3 +147,18 @@ Built `index.html` — a single-page web app served by Spring Boot at `http://lo
 
 **Bug 1 — Candidate data clearing:**
 Adding a new candidate wiped all previously entered scores.
+**Fix:**
+- Value preservation in syncCriteriaToOptions: Before clearing the grid, all existing input values are snapshot into a savedValues object keyed by input ID. After the grid is rebuilt, those values are written back into the new inputs.
+- addOption no longer calls syncCriteriaToOptions: Adding a new candidate now directly builds only that new card's score fields inline, so existing candidates are never touched at all. The full sync (which iterates every card) is only needed when criteria names change, not when a new candidate is added.
+
+**404 Error — POST /api/decision/evaluate Not Found**
+
+After fixing the candidate data clearing bug, clicking Evaluate Decision produced:
+```
+POST http://localhost:8080/api/decision/evaluate 404 (Not Found)
+```
+**Fix:**
+Ran this command in terminal to restart Spring Boot with the latest backend changes:
+```
+./gradlew clean bootRun
+```
