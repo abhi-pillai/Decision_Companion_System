@@ -162,3 +162,81 @@ Ran this command in terminal to restart Spring Boot with the latest backend chan
 ```
 ./gradlew clean bootRun
 ```
+
+
+---
+
+## 12. AI Advisory Module
+
+With the core MCDM system stable and end-to-end verified, the AI Advisory Module was implemented. The goal was defined carefully before writing any code: Gemini advises but never decides. It explains the decision domain and suggests which metrics may carry more or less weight — but the user still sets all weights and scores manually.
+
+**Key principle preserved:** `DecisionEngine` never knows AI exists. The advisory module sits entirely in the infrastructure layer and is invoked only before the user submits input.
+
+**Three new files created:**
+
+- `AiAdvisoryResponse.java` — domain model holding the structured Gemini response. Contains a nested `Metric` class with `name` and `hint` fields, plus `about` (one sentence on the category) and `examples` (list of candidate names).
+- `AiAdvisoryService.java` — builds the Gemini prompt, calls `POST /v1beta/models/{model}:generateContent`, parses the JSON response. Includes a defensive markdown fence stripper in case Gemini returns backticks despite prompt instructions.
+- `AiAdvisoryController.java` — REST endpoint `POST /api/advisory/suggest`. Accepts `{ "category": "..." }`, delegates to `AiAdvisoryService`, returns the structured response or a 500 with the error message.
+
+**`application.properties` updated:**
+```properties
+gemini.api.key=YOUR_KEY_HERE
+gemini.model=gemini-3-flash-preview
+```
+
+**Gemini prompt design:**
+
+The prompt was written to return only valid JSON — no markdown, no explanation, no extra text:
+```
+You are a decision-making advisor. The user is deciding about: {category}.
+Return a JSON object with exactly this structure:
+{
+  "about": "one sentence describing this decision domain",
+  "metrics": [
+    { "name": "metric name", "hint": "one sentence about why this metric may carry more or less weight" }
+  ],
+  "examples": ["example option 1", "example option 2", "example option 3"]
+}
+Return only valid JSON. No markdown, no code fences, no explanation, no extra text.
+```
+
+The `hint` field per metric was a deliberate design choice — a flat metric list gives no guidance. The hint explains relative importance depending on context without prescribing a weight, keeping the user in control.
+
+---
+
+## 13. Frontend — Three Changes in One Session
+
+Three significant frontend changes were made after the AI Advisory Module was complete.
+
+**Change 1 — AI Advisory Panel**
+
+A "✦ Learn about Metrics" button was added to the category card. It is disabled until the user types a category. On click, the frontend calls `POST /api/advisory/suggest` and renders:
+- An **about** section describing the decision domain
+- **Metric chips** — each showing name, importance hint, and "+ Add to criteria" action
+- **Example candidate chips** — click to add directly to the candidates list
+
+Clicking a metric chip calls `addCriterionWithName()` and marks the chip as "✔ Added" to prevent duplicates. Clicking an example chip calls `addOptionWithName()` and marks similarly. The user still sets all weights and scores manually.
+
+**Change 2 — Fixed Navbar with Section Navigation**
+
+The step indicator was converted into a fixed navbar that stays visible while scrolling. Only one section is visible at a time — clicking a step hides all sections and shows the target one.
+
+A `goToStep(step)` function controls all visibility and navbar state. Next buttons were added to each card: "Next: Define Criteria →", "Next: Add Candidates →", "Next: Evaluate →". After evaluation completes, `renderResults()` calls `goToStep(4)` automatically.
+
+Two approaches were considered and rejected before arriving at this design:
+- Scroll to section — rejected. Show/hide is cleaner for a step-by-step flow and prevents the user from seeing incomplete later sections.
+- Navbar stays in place — rejected. Fixed position keeps progress always visible regardless of scroll depth.
+
+**Change 3 — Per-Card Inline Validation**
+
+Previously, all errors appeared in a single global error box shown only when Evaluate was clicked. This was replaced with per-card validation triggered by each Next button.
+
+Each card has a `div.card-error` at the bottom, above the Next button. The `validateAndGo(step)` function replaces the plain `goToStep()` call on all Next buttons:
+
+- Step 1 Next — validates category is not empty
+- Step 2 Next — validates all criterion names filled, weights sum to exactly 100%
+- Step 3 Next — validates at least 2 candidates, all names filled, all scores between 1 and 10
+
+If validation fails, the error appears in that card and navigation is blocked. The Step 4 Evaluate button retains a server-side validation safety net with errors appearing in the Step 4 error box. Advisory errors from Gemini also now appear in the Step 1 card error box.
+
+---
