@@ -22,6 +22,38 @@
       --topsis:    #00d4aa;
     }
 
+
+    body.light {
+      --bg:        #f4f4f8;
+      --surface:   #ffffff;
+      --surface2:  #eeeef4;
+      --border:    #d0d0e0;
+      --accent:    #6c63ff;
+      --accent2:   #00a882;
+      --danger:    #d93535;
+      --text:      #1a1a2e;
+      --muted:     #6b6b8a;
+      --wsm:       #6c63ff;
+      --topsis:    #00a882;
+    }
+
+    body.light::before {
+      background-image:
+        linear-gradient(rgba(108,99,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.05) 1px, transparent 1px);
+    }
+
+    body.light .steps {
+      background: rgba(244,244,248,0.9);
+    }
+
+    body.light header h1 {
+      background: linear-gradient(135deg, #1a1a2e 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
     html { scroll-behavior: smooth; }
 
     body {
@@ -145,6 +177,28 @@
     }
 
     .step-divider { flex: 0 0 2rem; height: 1px; background: var(--border); pointer-events: none; }
+
+    /* ── Theme toggle ───────────────────────────────────────────── */
+    .theme-toggle {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.35rem 0.7rem;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .theme-toggle .toggle-icon { font-size: 0.85rem; line-height: 1; }
+
 
     /* Push content below fixed navbar */
     .container { padding-top: 5rem; }
@@ -492,6 +546,9 @@
     <div class="step" id="step-3" onclick="goToStep(3)"><div class="step-num">3</div><span>Options</span></div>
     <div class="step-divider"></div>
     <div class="step" id="step-4" onclick="goToStep(4)"><div class="step-num">4</div><span>Results</span></div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+      <span class="toggle-icon">☀️</span><span class="toggle-label"> Light</span>
+    </button>
   </div>
 
   <!-- STEP 1: Category -->
@@ -1039,6 +1096,15 @@
 
   function escapeHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Theme toggle ───────────────────────────────────────────────
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle('light');
+    const btn = document.getElementById('themeToggle');
+    btn.innerHTML = isLight
+      ? '<span class="toggle-icon">🌙</span><span class="toggle-label"> Dark</span>'
+      : '<span class="toggle-icon">☀️</span><span class="toggle-label"> Light</span>';
   }
 
   function resetAll() {
