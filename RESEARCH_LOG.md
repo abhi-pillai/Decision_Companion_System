@@ -265,3 +265,114 @@ Google search used:
 ./gradlew clean bootRun
 ```
 `clean` wiped the stale cache and forced a full fresh recompile. Controller was picked up correctly and 404 was resolved.
+
+## *Day 14*
+**AI Advisory Module — Design, Implementation, and Frontend Integration**
+
+**AI Advisory Module Design**
+
+After the core MCDM system was stable and verified, the decision was made to add an optional AI advisory layer using the Gemini API. The goal was defined carefully before implementation:
+
+- Gemini should help the user understand their decision domain — not make decisions for them
+- It should suggest which metrics might matter more or less depending on context — but never set weights
+- The user retains full interpretive authority at all times
+- `DecisionEngine` must never know AI exists
+
+Prompt used (Claude):
+- *Now let's move on to next stage and that is adding a Gemini API to this for Taking in the category on which the user needs to decide like Laptop, and the gemini returns one line about that category and then one line about the few or all metrics related to deciding of that category. Then some examples.*
+
+Claude proposed the output structure. **Accepted with one modification** — the metric output was refined to include a `hint` field explaining relative importance rather than just listing metric names.
+
+**What was accepted, rejected, or modified:**
+- Flat metric list — **rejected**. Not useful enough without context.
+- Metric + hint structure — **accepted**. Each metric gets one sentence explaining why it may carry more or less weight depending on the user's priorities.
+- Claude suggested storing the API key in `application.properties` on the backend — **accepted**. Keeps the key server-side, not exposed in frontend JavaScript.
+- Model `gemini-2.0-flash` (Claude's suggestion) — **rejected**. Changed to `gemini-3-flash-preview` as specified.
+
+**Gemini Prompt Design**
+
+The prompt sent to Gemini was carefully structured to return only valid JSON with no markdown fences or extra text:
+
+```
+You are a decision-making advisor. The user is deciding about: {category}.
+Return a JSON object with exactly this structure:
+{
+  "about": "one sentence describing this decision domain",
+  "metrics": [
+    { "name": "metric name", "hint": "one sentence about why this metric may carry more or less weight" }
+  ],
+  "examples": ["example option 1", "example option 2", "example option 3"]
+}
+Return only valid JSON. No markdown, no code fences, no explanation, no extra text.
+```
+
+A markdown fence stripper was added defensively in `AiAdvisoryService.java` in case Gemini still returns backticks despite instructions.
+
+**Files Created:**
+- `AiAdvisoryResponse.java` — domain model with nested `Metric` class
+- `AiAdvisoryService.java` — calls Gemini API, parses JSON response
+- `AiAdvisoryController.java` — REST endpoint `POST /api/advisory/suggest`
+
+**`application.properties` Updated:**
+```properties
+gemini.api.key=YOUR_KEY_HERE
+gemini.model=gemini-3-flash-preview
+```
+
+**Frontend — Advisory Panel and Navigation Overhaul**
+
+Three significant frontend changes were made in this session:
+
+**Change 1 — AI Advisory Panel**
+
+A "✦ Learn about Metrics" button was added to the category card. On click, the frontend calls `POST /api/advisory/suggest` and renders the response as:
+- An about section describing the category
+- Metric chips — each showing the metric name, hint, and a "+ Add to criteria" action
+- Example candidate chips — click to add directly to the candidates list
+
+Clicking a metric chip adds it to the criteria list via `addCriterionWithName()`. Clicking an example chip adds it via `addOptionWithName()`. Both mark as "✔ Added" after clicking to prevent duplicates.
+
+**What was accepted, rejected, or modified:**
+- Auto-populate criteria fields directly — **rejected**. User should consciously choose which metrics to use.
+- Show as popup — **rejected**. Inline panel within the card is less disruptive.
+- Both show suggestions and let user click to add — **accepted**.
+
+**Change 2 — Fixed Navbar with Section Navigation**
+
+The step indicator was converted to a fixed navbar that stays visible while scrolling. Clicking any step shows only that section — all others are hidden. A `goToStep(step)` function controls visibility.
+
+Next buttons added to each section: "Next: Define Criteria →", "Next: Add Candidates →", "Next: Evaluate →".
+
+Prompt used (Claude):
+- *Make this div as a navigation bar*
+
+**What was accepted, rejected, or modified:**
+- Scroll to section — **rejected**. Show/hide is cleaner with a step-by-step flow.
+- Stays in place — **rejected**. Fixed at top keeps progress always visible.
+- Fixed navbar + show/hide — **accepted**.
+
+**Change 3 — Per-Card Inline Validation**
+
+Previously all errors appeared in a single global error box at the bottom of the page, shown only when Evaluate was clicked. This was replaced with per-card validation triggered on each Next button click.
+
+Each card has its own `div.card-error` at the bottom, above the Next button. Errors appear in the card where the problem is:
+
+- Step 1 Next — validates category not empty
+- Step 2 Next — validates all criterion names filled, weights sum to 100%
+- Step 3 Next — validates at least 2 candidates, all names filled, all scores 1–10
+
+Prompt used (Claude):
+- *Errors should be shown in their particular card not at the end when Evaluate is clicked*
+
+**What was accepted, rejected, or modified:**
+- Below card header — **rejected**. Too visually prominent, disrupts the flow.
+- Inline next to each field — **rejected**. Too granular for this UI.
+- Bottom of card above Next button — **accepted**. Natural position — user sees the error just before the action they tried to take.
+
+**Advisory errors** from Gemini also now show in the Step 1 card error box rather than the global error box.
+
+**Google searches used:**
+- gemini api
+- how to call gemini api from java
+
+
