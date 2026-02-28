@@ -35,9 +35,10 @@ This system solves that by letting the user define what matters (criteria), how 
 |---|---|
 | Language | Java 21 |
 | Framework | Spring Boot 3.2.5 |
-| Build Tool | Gradle |
+| Build Tool | Gradle 8.7 |
 | Frontend | HTML + CSS + Vanilla JS |
 | JSON Handling | Jackson (via Spring Boot) |
+| AI Advisory | Gemini API (`gemini-3-flash-preview`) |
 | Test Framework | JUnit Jupiter |
 | IDE | Visual Studio Code |
 | Version Control | Git |
@@ -47,15 +48,18 @@ This system solves that by letting the user define what matters (criteria), how 
 ## Project Structure
 
 ```
+
 Decision_Companion_System/
 ├── app/
 │   └── src/
 │       ├── main/
 │       │   ├── java/org/example/
 │       │   │   ├── controller/
-│       │   │   │   └── DecisionController.java
+│       │   │   │   ├── DecisionController.java
+│       │   │   │   └── AiAdvisoryController.java
 │       │   │   ├── service/
-│       │   │   │   └── DecisionService.java
+│       │   │   │   ├── DecisionService.java
+│       │   │   │   └── AiAdvisoryService.java
 │       │   │   ├── engine/
 │       │   │   │   ├── DecisionEngine.java
 │       │   │   │   ├── WeightedSumEngine.java
@@ -65,8 +69,10 @@ Decision_Companion_System/
 │       │   │   │   ├── Option.java
 │       │   │   │   ├── DecisionRequest.java
 │       │   │   │   ├── DecisionResult.java
-│       │   │   │   └── CombinedDecisionResponse.java
-│       │   │   └── DecisionCompanionApplication.java
+│       │   │   │   ├── CombinedDecisionResponse.java
+│       │   │   │   └── AiAdvisoryResponse.java
+│       │   │   ├── DecisionCompanionApplication.java
+│       │   │   └── Main.java
 │       │   └── resources/
 │       │       ├── static/
 │       │       │   └── index.html
@@ -75,11 +81,14 @@ Decision_Companion_System/
 │           └── java/org/example/
 ├── build.gradle
 ├── settings.gradle
+├── gradle/
+│   └── wrapper/
+│       └── gradle-wrapper.properties
 ├── README.md
 ├── BUILD_PROCESS.md
 ├── RESEARCH_LOG.md
 └── screenshots/
-    ├── DFD.png
+    └── DFD.png
 ```
 
 ---
@@ -89,12 +98,24 @@ Decision_Companion_System/
 ### User Flow
 
 ```
-Step 1 → Enter decision category 
-Step 2 → Add candidates and score each metric from 1-10
-Step 3 → Assign weights to each metric (must sum to 100%)
-Step 4 → Click Evaluate
+Step 1 → Enter decision category and optionally click "Learn about Metrics" for AI suggestions
+Step 2 → Define criteria and assign weights (must sum to 100%)
+Step 3 → Add candidates and score each metric from 1–10
+Step 4 → Click Evaluate Decision
 Step 5 → View WSM and TOPSIS rankings + final verdict
 ```
+
+### AI Advisory Module
+
+When the user enters a category and clicks **✦ Learn about Metrics**, the system calls the Gemini API and returns:
+
+- **About** — one sentence describing the decision domain
+- **Suggested Metrics** — each with a hint explaining why it may carry more or less weight depending on the user's priorities
+- **Example Candidates** — real-world examples relevant to the category
+
+Metrics and candidates appear as clickable chips. Clicking a metric adds it to the criteria list. Clicking a candidate adds it to the options list. The user still sets all weights and scores manually — Gemini advises but never decides.
+
+The AI advisory module is entirely separate from the decision engines. `DecisionEngine` never knows AI exists.
 
 ### Algorithms
 
@@ -127,6 +148,27 @@ Both verdicts are shown together — giving the user two independent perspective
 
 ---
 
+---
+
+## Design Decisions and Trade-offs
+
+**Why WSM and TOPSIS together?**
+WSM is simple and transparent — every evaluator can verify it by hand. TOPSIS adds a second perspective by considering distance from both the ideal and worst-case solutions. Running both gives the user more insight than either alone.
+
+**Why not AHP?**
+AHP requires pairwise comparisons between all criteria which grows exponentially with the number of criteria. It is too complex for a general-purpose tool where the user may not have domain expertise.
+
+**Why a 1-10 rating system?**
+The user knows what "good" means for their context. A budget traveller rates the cheapest destination 10/10 on price. A luxury traveller rates the most expensive 10/10. Both are correct — the system never assumes what better means.
+
+**Why no database?**
+The system is stateless by design. Each evaluation is independent. Removing persistence keeps the system simpler and more explainable.
+
+**Why Gemini advisory only — not scoring?**
+AI can be wrong or biased. Letting AI set scores or weights would make results untraceable. Gemini is restricted to advisory only — explaining context and suggesting metrics — so the user retains full interpretive authority.
+
+---
+
 ## Known Constraints
 
 | Constraint | Explanation |
@@ -147,7 +189,18 @@ Both verdicts are shown together — giving the user two independent perspective
 
 ### Prerequisites
 - Java 21+
-- Gradle (or use the included `./gradlew` wrapper)
+- Gradle 8.7 (Gradle 9.x is not supported — see Known Issues)
+- A Gemini API key (required for the AI advisory feature)
+- Or use the included `./gradlew` wrapper which handles the Gradle version automatically
+
+### Configuration
+
+Open `app/src/main/resources/application.properties` and add your Gemini API key:
+
+```properties
+gemini.api.key=YOUR_KEY_HERE
+gemini.model=gemini-3-flash-preview
+```
 
 ### Steps
 
@@ -155,14 +208,45 @@ Both verdicts are shown together — giving the user two independent perspective
 # Clone the repository
 git clone https://github.com/abhi-pillai/Decision_Companion_System.git
 cd Decision_Companion_System
+
 # Run the application
 ./gradlew bootRun
+
+# Open in browser
+http://localhost:8080
 ```
 
+### Testing the API directly (curl)
 
+**Decision evaluation:**
+```bash
+curl -X POST http://localhost:8080/api/decision/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "category": "Laptop Selection",
+    "options": [
+      { "name": "Dell XPS",    "scores": { "Performance": 9, "Battery": 6, "Price": 7 } },
+      { "name": "MacBook Air", "scores": { "Performance": 8, "Battery": 9, "Price": 5 } },
+      { "name": "Lenovo",      "scores": { "Performance": 6, "Battery": 7, "Price": 9 } }
+    ],
+    "criteria": [
+      { "name": "Performance", "weight": 40 },
+      { "name": "Battery",     "weight": 30 },
+      { "name": "Price",       "weight": 30 }
+    ]
+  }'
+```
+
+**AI advisory:**
+```bash
+curl -X POST http://localhost:8080/api/advisory/suggest \
+  -H "Content-Type: application/json" \
+  -d '{ "category": "Laptop Selection" }'
+```
+
+---
 ## What I Would Improve With More Time
 
-- **AI Advisory Module** — Integrate Gemini API to explain metrics and validate user input before evaluation
 - **Raw value normalization mode** — Let users enter actual values (price in rupees, battery in hours) and auto-normalize using min-max for quantitative metrics
 - **Qualitative metric dropdowns** — Replace free-text scoring for qualitative metrics with dropdowns (Poor / Average / Good / Excellent) that map to numbers internally
 - **Weight slider UI** — Live weight adjustment with real-time sum validation
