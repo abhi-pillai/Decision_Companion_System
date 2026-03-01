@@ -310,3 +310,62 @@ With unit tests now covering engine correctness with proper assertions, `Main.ja
 |---|---|---|
 | `WeightedSumEngineTest.java` | `test/java/org/example/` | 6 unit tests for WSM engine |
 | `TopsisEngineTest.java` | `test/java/org/example/` | 6 unit tests for TOPSIS engine |
+
+## 17. Deployment
+
+The application is deployed on Render's free tier using Docker.
+
+**Live URL:** https://decision-companion-system-3pdl.onrender.com
+
+### Platform Selection
+
+Render was chosen over Railway (credit limited), Fly.io (requires credit card), and Heroku (no free tier). Render's free tier supports Docker, integrates directly with GitHub, and supports environment variables for the Gemini API key.
+
+### Dockerfile — Three Iterations
+
+Render does not support Java as a native runtime on the free tier. Docker was used instead.
+
+**Attempt 1** — Used `FROM gradle:8.7-jdk21` with `RUN gradle bootJar`. Failed — `gradle` system command not available in that image.
+
+**Attempt 2** — Switched to `./gradlew` but `COPY app/ .` meant `gradlew` was missing — it lives at the project root, not inside `app/`.
+
+**Attempt 3** — Used `COPY . .` then `cd app && ./gradlew bootJar`. Failed — `cd app` moved away from `gradlew` which is at root.
+
+**Final Dockerfile:**
+```dockerfile
+# Stage 1 — Build the JAR
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /project
+COPY . .
+RUN chmod +x gradlew && ./gradlew -p app clean bootJar --no-daemon
+
+# Stage 2 — Run the JAR
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=build /project/app/build/libs/app.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+Key decisions:
+- `./gradlew -p app` — runs `gradlew` from root but targets `app/` as the project directory
+- `clean bootJar` — forces a fresh build, avoids stale Gradle cache inside the container
+- Two-stage build — Stage 1 uses JDK to build, Stage 2 uses lightweight JRE to run. Keeps the final image small.
+
+### Environment Variables
+
+| Key | How set |
+|---|---|
+| `gemini.api.key` | Manually entered in Render dashboard — never committed to GitHub |
+| `gemini.model` | Set to `gemini-3-flash-preview` in Render dashboard |
+
+### Free Tier Behaviour
+
+Render spins down free tier services after 15 minutes of inactivity — the next request after idle takes ~30 seconds to respond while the service wakes up. The 750 hours/month are shared across all services on the account.
+
+### Files Created
+
+| File | Location | Purpose |
+|---|---|---|
+| `Dockerfile` | project root | Two-stage Docker build for Render deployment |
+| `render.yaml` | project root | Render service configuration |
