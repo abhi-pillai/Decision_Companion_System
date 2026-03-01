@@ -525,6 +525,82 @@
     @keyframes fadeUp   { from { opacity: 0; transform: translateY(16px);  } to { opacity: 1; transform: translateY(0); } }
     @keyframes spin     { to { transform: rotate(360deg); } }
 
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+
+    /* Tablet: ≤ 700px */
+    @media (max-width: 700px) {
+      .step span { display: none; }
+      .step { padding: 0.4rem 0.5rem; }
+      .step-divider { flex: 0 0 1rem; }
+      .theme-toggle .toggle-label { display: none; }
+      .theme-toggle { padding: 0.35rem 0.5rem; }
+
+      header { padding: 2.5rem 0 2rem; }
+      header h1 { font-size: clamp(1.6rem, 6vw, 2.4rem); }
+
+      .card { padding: 1.4rem 1.2rem; }
+
+      .criterion-row {
+        grid-template-columns: 1fr 90px 32px;
+        gap: 0.4rem;
+      }
+
+      .scores-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      }
+
+      .rankings-grid { grid-template-columns: 1fr; }
+
+      .btn-row { flex-direction: column; gap: 0.5rem; }
+      .btn-row .btn-ghost:last-child { margin-left: 0 !important; }
+
+      .verdict-banner { padding: 1.4rem 1rem; }
+      .verdict-banner h2 { font-size: 1.2rem; }
+      .verdict-banner .topsis-verdict { font-size: 0.85rem; }
+    }
+
+    /* Mobile: ≤ 480px */
+    @media (max-width: 480px) {
+      .container { padding: 5rem 1rem 4rem; }
+
+      .steps { padding: 0 0.8rem; }
+      .step-num { width: 20px; height: 20px; font-size: 0.6rem; }
+
+      header h1 { font-size: clamp(1.4rem, 7vw, 2rem); }
+      header p  { font-size: 0.78rem; }
+
+      .card { padding: 1.2rem 1rem; border-radius: 6px; }
+      .card-header { gap: 0.6rem; margin-bottom: 1.2rem; }
+      .card-icon { width: 28px; height: 28px; font-size: 0.75rem; }
+      .card-title { font-size: 0.9rem; }
+
+      .criterion-row {
+        grid-template-columns: 1fr 80px 28px;
+        padding: 0.5rem 0.6rem;
+      }
+
+      .scores-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .option-card { padding: 1rem; }
+
+      .advisory-panel { border-radius: 6px; }
+      .metric-chips { gap: 0.4rem; padding: 0 0.8rem 0.8rem; }
+      .example-chips { gap: 0.4rem; padding: 0 0.8rem 0.8rem; }
+      .metric-chip { padding: 0.4rem 0.6rem; }
+
+      .btn { padding: 0.55rem 1rem; font-size: 0.75rem; }
+      .btn-primary { padding: 0.8rem; font-size: 0.8rem; }
+
+      .rank-item { padding: 0.6rem; gap: 0.6rem; }
+      .rank-num { font-size: 1rem; }
+      .rank-name { font-size: 0.82rem; }
+
+      .verdict-banner { padding: 1.2rem 0.8rem; }
+    }
+
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
