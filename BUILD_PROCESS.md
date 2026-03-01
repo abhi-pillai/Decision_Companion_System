@@ -253,3 +253,60 @@ html:
 
 The `header h1` gradient was `linear-gradient(135deg, #fff 0%, var(--accent) 100%)` — white text on a light background was invisible. Fixed by adding a `body.light header h1` override that changes the gradient start colour from `#fff` to `#1a1a2e` (dark navy), making the title clearly readable in both modes.
 
+
+## 15. Unit Tests
+
+With the full system stable, both deferred test files were implemented.
+
+**`WeightedSumEngineTest.java` — 6 tests:**
+
+| Test | What it verifies |
+|---|---|
+| `shouldReturnOneResultPerOption` | Engine returns exactly one result per input option |
+| `shouldRankDellXpsFirst` | Dell XPS ranks first — verified against Postman result from Day 11 |
+| `shouldReturnResultsSortedByScoreDescending` | Results are ordered rank 1 → rank 3 by score |
+| `shouldCalculateCorrectScoreForDellXps` | Dell XPS score = exactly 7.5 (`0.4×9 + 0.3×6 + 0.3×7`) |
+| `shouldAttachExplanationToEachResult` | Every result has a non-null, non-blank explanation string |
+| `shouldProduceTiedScoresWhenAllOptionsAreIdentical` | Two identical options produce identical scores |
+
+**`TopsisEngineTest.java` — 6 tests:**
+
+| Test | What it verifies |
+|---|---|
+| `shouldReturnOneResultPerOption` | Engine returns exactly one result per input option |
+| `shouldProduceClosenessRatiosBetweenZeroAndOne` | All ratios are in `[0, 1]` — mathematical requirement of TOPSIS |
+| `shouldReturnResultsSortedByClosenessDescending` | Results ordered by closeness ratio descending |
+| `shouldGiveClosenessOfOneToIdealOption` | All-10 option gets `C = 1.0` because `d⁺ = 0` |
+| `shouldGiveClosenessOfZeroToWorstOption` | All-1 option gets `C = 0.0` because `d⁻ = 0` |
+| `shouldAttachExplanationToEachResult` | Every result has a non-null, non-blank explanation string |
+
+**Bug — constructor argument order:**
+
+Tests initially used `new DecisionRequest(options, criteria)` — two arguments. Two compilation errors followed:
+
+First: `DecisionRequest(List<Option>, List<Criterion>) is undefined` — category argument missing.
+
+Second: `List<Option> cannot be converted to String` — constructor signature is `(String category, List<Option>, List<Criterion>)`, not `(List<Option>, List<Criterion>, String)`. Fixed by reordering to `new DecisionRequest("Laptop Selection", options, criteria)`.
+
+Result: `BUILD SUCCESSFUL` — all 12 tests passed.
+
+---
+
+## 16. Main.java Removed
+
+`Main.java` was deleted. It was a temporary CLI runner created on Day 8 to test the WSM engine before Spring Boot existed, extended on Day 10 to test both engines simultaneously.
+
+With unit tests now covering engine correctness with proper assertions, `Main.java` served no further purpose. Keeping it would add noise to the project structure and mislead anyone reading the codebase.
+
+### Files Deleted
+
+| File | Reason |
+|---|---|
+| `Main.java` | Temporary CLI runner — superseded by unit tests and Spring Boot application |
+
+### Files Created
+
+| File | Location | Purpose |
+|---|---|---|
+| `WeightedSumEngineTest.java` | `test/java/org/example/` | 6 unit tests for WSM engine |
+| `TopsisEngineTest.java` | `test/java/org/example/` | 6 unit tests for TOPSIS engine |
