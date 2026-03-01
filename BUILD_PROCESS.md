@@ -240,3 +240,16 @@ Each card has a `div.card-error` at the bottom, above the Next button. The `vali
 If validation fails, the error appears in that card and navigation is blocked. The Step 4 Evaluate button retains a server-side validation safety net with errors appearing in the Step 4 error box. Advisory errors from Gemini also now appear in the Step 1 card error box.
 
 ---
+
+## 14. Added Light and Dark Mode Toggle
+A light/dark mode toggle was added to the top right of the navbar. It uses a simple checkbox input styled as a toggle switch. When toggled, it adds or removes a `light-mode` class on the `body` element.
+The CSS defines two themes:
+- **Dark mode** (default): dark background, light text, blue accent colors
+- **Light mode**: light background, dark text, orange accent colors
+html:
+```html
+```
+**Bug — h1 title invisible in light mode:**
+
+The `header h1` gradient was `linear-gradient(135deg, #fff 0%, var(--accent) 100%)` — white text on a light background was invisible. Fixed by adding a `body.light header h1` override that changes the gradient start colour from `#fff` to `#1a1a2e` (dark navy), making the title clearly readable in both modes.
+
