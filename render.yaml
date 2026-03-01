@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: decision-companion-system
+    runtime: java
+    buildCommand: "./app/gradlew -p app bootJar"
+    startCommand: "java -jar app/build/libs/app.jar"
+    envVars:
+      - key: gemini.api.key
+        sync: false
+      - key: gemini.model
+        value: gemini-3-flash-preview
