@@ -375,4 +375,12 @@ Prompt used (Claude):
 - gemini api
 - how to call gemini api from java
 
+## *Day 15*
+Added Light and Dark Mode Toggle
+A light/dark mode toggle was added to the top right of the navbar. It uses a simple checkbox input styled as a toggle switch. When toggled, it adds or removes a `light-mode` class on the `body` element.
+Prompt used (Claude):
+- *I want to ask if its possible to add a button to change the app from dark mode to light mode and vice versa. And should always start in dark mode.*
+**Bug — h1 title invisible in light mode:**
+Prompt used (Claude):
+- *In Light mode, the Decision companion system is not clearly visible.*
 
