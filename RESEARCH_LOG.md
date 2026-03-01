@@ -384,3 +384,30 @@ Prompt used (Claude):
 Prompt used (Claude):
 - *In Light mode, the Decision companion system is not clearly visible.*
 
+**Unit Tests and Main.java Removal**
+
+**Unit Tests**
+
+With the full system stable and verified end-to-end, the two deferred unit tests were implemented.
+
+`WeightedSumEngineTest.java` — 6 tests:
+- Returns one result per option
+- Dell XPS ranks first (verified against Postman result from Day 11)
+- Results sorted descending by score
+- Dell XPS score is exactly 7.5 (hand-calculated: `0.4×9 + 0.3×6 + 0.3×7`)
+- Every result has a non-empty explanation
+- Identical options produce identical scores (tie case)
+
+`TopsisEngineTest.java` — 6 tests:
+- Returns one result per option
+- All closeness ratios between 0 and 1 (mathematically bounded by `C = d⁻ / (d⁺ + d⁻)`)
+- Results sorted descending by closeness ratio
+- All-10 option gets closeness ratio of 1.0 (because `d⁺ = 0`)
+- All-1 option gets closeness ratio of 0.0 (because `d⁻ = 0`)
+- Every result has a non-empty explanation
+**Main.java Removed**
+
+`Main.java` was a temporary CLI runner created on Day 8 to test the WSM engine before Spring Boot existed. It was extended on Day 10 to test both engines. With unit tests now covering engine correctness properly, `Main.java` was deleted.
+
+Reasons for deletion:
+- Its purpose (engine verification) is now covered by unit tests with proper assertions
