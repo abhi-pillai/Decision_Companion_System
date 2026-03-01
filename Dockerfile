@@ -2,7 +2,7 @@
 FROM gradle:8.7-jdk21 AS build
 WORKDIR /app
 COPY app/ .
-RUN gradle bootJar --no-daemon
+RUN chmod +x gradlew && ./gradlew bootJar --no-daemon
 
 # Stage 2 — Run the JAR
 FROM eclipse-temurin:21-jre-alpine
