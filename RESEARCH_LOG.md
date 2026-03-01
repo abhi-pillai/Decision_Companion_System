@@ -411,3 +411,49 @@ With the full system stable and verified end-to-end, the two deferred unit tests
 
 Reasons for deletion:
 - Its purpose (engine verification) is now covered by unit tests with proper assertions
+
+
+**Deployment to Render**
+
+**Platform Selection**
+
+Several free deployment options were evaluated:
+
+| Platform | Decision | Reason |
+|---|---|---|
+| Railway | Considered | $5 credit/month — good but limited |
+| Render | Selected | Free tier, Docker support, simple GitHub integration |
+| Fly.io | Rejected | Requires credit card on file |
+| Heroku | Rejected | No longer has a free tier |
+
+**Initial Attempt — Native Java Runtime**
+
+Render was set up with the Web Service option. The language dropdown did not include Java — only Docker, Elixir, Go, Node, Python 3, Ruby, and Rust. Native Java is not supported on Render's free tier. Switched to **Docker**.
+
+**Dockerfile — Three Iterations**
+
+*Attempt 1:* Used `FROM gradle:8.7-jdk21` base image and `COPY app/ .` with `RUN gradle bootJar`. Failed — `gradle` command not found inside the container because system Gradle is not available in that image.
+
+*Attempt 2:* Switched to `./gradlew` but used `COPY app/ .` — failed with `chmod: cannot access 'gradlew': No such file or directory` because `gradlew` is at the project root, not inside `app/`.
+
+*Attempt 3:* Used `COPY . .` to copy the entire project, then `cd app && ./gradlew bootJar`. Failed because `gradlew` is at the root — `cd app` moved away from it.
+
+*Final fix:* Used `./gradlew -p app clean bootJar` from the project root. The `-p app` flag tells Gradle to use `app/` as the project directory without changing the working directory. `clean` added to force a fresh build and avoid stale cache issues inside the container.
+
+**Root cause of repeated failures:** `gradlew` is at the project root but `build.gradle` is inside `app/`. These are in different directories, which is an unusual Gradle project layout that required the `-p` flag.
+
+**Deployment verified:**
+
+Live URL: https://decision-companion-system-3pdl.onrender.com
+Prompts used for deployment:
+- *Okay now everything is finished, now going to the last part of it, deployment. Help me deploy this project free of cost.*
+Google search used:
+- *render.com* 
+
+### AI Assistance Disclosure
+- This project was developed with significant assistance from Claude (Anthropic) and ChatGPT throughout the development process.
+- Claude was used for architecture design, algorithm selection, code generation, debugging, and documentation. Specific contributions include: the layered architecture with hexagonal influence, the dual-engine WSM + TOPSIS design, all Java backend files, the full frontend implementation, the Gemini advisory integration, unit tests, deployment configuration, and all three documentation files (README, BUILD_PROCESS, RESEARCH_LOG).
+- ChatGPT was used in the research phase (Days 1–6) to explore MCDM algorithms and extract key findings from research papers.
+- All AI-generated code was reviewed, tested, and verified by the me.
+- All design decisions were made by me with the assistance of Claude and are documented in this research log for transparency. 
+- All the prompts used are mentioned in this research log for transparency.
