@@ -91,6 +91,7 @@ Decision_Companion_System/
 ├── RESEARCH_LOG.md
 └── screenshots/
     └── DFD.png
+    └── architecture.png
 ```
 
 
@@ -152,7 +153,7 @@ Both verdicts are shown together — giving the user two independent perspective
 ---
 ## Architecture Diagram
 
-![Architecture](screenshots/Architecture.png)
+![Architecture](screenshots/architecture.png)
 
 ---
 
