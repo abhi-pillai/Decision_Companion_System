@@ -47,8 +47,10 @@ This system solves that by letting the user define what matters (criteria), how 
 
 ## Project Structure
 
-```
 
+## Project Structure
+
+```
 Decision_Companion_System/
 ├── app/
 │   └── src/
@@ -71,14 +73,15 @@ Decision_Companion_System/
 │       │   │   │   ├── DecisionResult.java
 │       │   │   │   ├── CombinedDecisionResponse.java
 │       │   │   │   └── AiAdvisoryResponse.java
-│       │   │   ├── DecisionCompanionApplication.java
-│       │   │   └── Main.java
+│       │   │   └── DecisionCompanionApplication.java
 │       │   └── resources/
 │       │       ├── static/
 │       │       │   └── index.html
 │       │       └── application.properties
 │       └── test/
 │           └── java/org/example/
+│               ├── WeightedSumEngineTest.java
+│               └── TopsisEngineTest.java
 ├── build.gradle
 ├── settings.gradle
 ├── gradle/
@@ -90,6 +93,7 @@ Decision_Companion_System/
 └── screenshots/
     └── DFD.png
 ```
+
 
 ---
 
@@ -215,6 +219,14 @@ cd Decision_Companion_System
 # Open in browser
 http://localhost:8080
 ```
+
+### Running the tests
+
+```bash
+./gradlew test
+```
+
+Test report generated at `app/build/reports/tests/test/index.html`.
 
 ### Testing the API directly (curl)
 
