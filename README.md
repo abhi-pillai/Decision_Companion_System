@@ -150,7 +150,11 @@ Both verdicts are shown together — giving the user two independent perspective
 ![DFD](screenshots/DFD.png)
 
 ---
+## Architecture Diagram
 
+![Architecture](screenshots/Architecture.png)
+
+---
 
 ## Design Decisions and Trade-offs
 
