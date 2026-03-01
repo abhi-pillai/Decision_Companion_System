@@ -47,9 +47,6 @@ This system solves that by letting the user define what matters (criteria), how 
 
 ## Project Structure
 
-
-## Project Structure
-
 ```
 Decision_Companion_System/
 ├── app/
@@ -87,6 +84,8 @@ Decision_Companion_System/
 ├── gradle/
 │   └── wrapper/
 │       └── gradle-wrapper.properties
+├── Dockerfile
+├── render.yaml
 ├── README.md
 ├── BUILD_PROCESS.md
 ├── RESEARCH_LOG.md
@@ -152,7 +151,6 @@ Both verdicts are shown together — giving the user two independent perspective
 
 ---
 
----
 
 ## Design Decisions and Trade-offs
 
@@ -184,6 +182,8 @@ AI can be wrong or biased. Letting AI set scores or weights would make results u
 
 ---
 ## Known Issues
+
+- **Gemini API rate limits** — The free tier of `gemini-3-flash-preview` has strict rate limits: **5 requests per minute (RPM)** and **20 requests per day (RPD)**. The AI Advisory feature ("✦ Learn about Metrics") is limited to 20 uses per day across all users. If the limit is exceeded, the advisory button will return an error — the core decision evaluation (WSM + TOPSIS) is unaffected and works without any API calls.
 
 - **Gradle 9.3.1 incompatibility** — Gradle 9.3.1 is incompatible with Spring Boot 3.2.5 due to a configuration cache serialization error (`DefaultLegacyConfiguration`). The project uses **Gradle 8.7** as a workaround. Gradle 9.x is not supported.
 
@@ -257,6 +257,33 @@ curl -X POST http://localhost:8080/api/advisory/suggest \
 ```
 
 ---
+
+## Deployment
+
+The application is deployed on **Render** (free tier) using Docker.
+
+**Live URL:** https://decision-companion-system-3pdl.onrender.com
+
+### How it is deployed
+
+The project uses a two-stage `Dockerfile` at the repository root:
+- **Stage 1** — builds the JAR using `./gradlew -p app clean bootJar`
+- **Stage 2** — runs the JAR on a lightweight `eclipse-temurin:21-jre-alpine` image on port 8080
+
+Render detects the `Dockerfile` automatically when Docker is selected as the language during setup.
+
+### Environment variables set on Render
+
+| Key | Value |
+|---|---|
+| `gemini.api.key` | Gemini API key (set manually in Render dashboard) |
+| `gemini.model` | `gemini-3-flash-preview` |
+
+### Free tier limits
+
+Render's free tier provides 750 hours/month shared across all services on the account. One service running 24/7 uses ~720 hours/month, leaving ~30 hours of buffer for redeploys. The 750 hours are shared across all services on the same account — running multiple services simultaneously will exceed the limit.
+
+---
 ## What I Would Improve With More Time
 
 - **Raw value normalization mode** — Let users enter actual values (price in rupees, battery in hours) and auto-normalize using min-max for quantitative metrics
@@ -266,7 +293,7 @@ curl -X POST http://localhost:8080/api/advisory/suggest \
 - **Export results** — Allow users to download results as PDF or CSV
 - **Session history** — Optional local storage of past decisions for reference
 
-
+---
 
 ## References
 - [RESEARCH_LOG.md](RESEARCH_LOG.md) — full log of AI prompts, searches, and references used
